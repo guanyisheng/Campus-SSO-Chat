@@ -1,0 +1,163 @@
+/* SpotlightCard — React Bits port */
+
+.card-spotlight {
+  position: relative;
+  border-radius: 20px;
+  border: 1px solid var(--border-default);
+  background-color: color-mix(in srgb, var(--bg-elevated) 90%, transparent);
+  overflow: hidden;
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  --spotlight-color: rgba(255, 255, 255, 0.12);
+}
+
+.card-spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mouse-x) var(--mouse-y),
+    var(--spotlight-color),
+    transparent 78%
+  );
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.card-spotlight:hover::before,
+.card-spotlight:focus-within::before,
+.card-spotlight.is-active::before {
+  opacity: 0.65;
+}
+
+.card-spotlight--composer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--chat-max-w);
+  margin: 0 auto;
+  border-color: rgba(255, 255, 255, 0.1);
+  background-color: color-mix(in srgb, rgba(14, 12, 22, 0.92) 90%, transparent);
+  --spotlight-color: rgba(0, 229, 255, 0.18);
+  pointer-events: auto;
+}
+
+.composer__surface {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+}
+
+.card-spotlight--composer .composer__bar,
+.card-spotlight--composer #chat-form {
+  background: transparent;
+  border: 0;
+  border-radius: inherit;
+  box-shadow: none;
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+.card-spotlight--composer .composer__textarea,
+.card-spotlight--composer .composer__actions button,
+.card-spotlight--composer .composer__attach,
+.card-spotlight--composer .composer__strip button,
+.card-spotlight--composer .composer__strip select,
+.card-spotlight--composer .send-btn,
+.card-spotlight--composer .mode-pill,
+.card-spotlight--composer .composer-mode-trigger,
+.card-spotlight--composer .voice-recorder button {
+  pointer-events: auto;
+}
+
+.card-spotlight--composer .voice-recorder {
+  margin: 0 18px 16px;
+  background: color-mix(in srgb, var(--bg-elevated) 88%, transparent);
+  border: 1px solid var(--border-subtle);
+}
+
+body.has-chat-aurora .card-spotlight--composer {
+  background-color: color-mix(in srgb, rgba(14, 12, 22, 0.88) 92%, transparent);
+  --spotlight-color: rgba(180, 151, 207, 0.22);
+}
+
+.card-spotlight--profile {
+  padding: 18px;
+  border-color: rgba(255, 255, 255, 0.08);
+  background-color: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
+  --spotlight-color: rgba(180, 151, 207, 0.18);
+}
+
+.card-spotlight--profile > * {
+  position: relative;
+  z-index: 1;
+}
+
+.card-spotlight--msg-user {
+  --spotlight-color: rgba(180, 151, 207, 0.18);
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+  padding: 10px 14px;
+  border-radius: 1.25rem;
+  border: 1px solid var(--msg-border, rgba(180, 151, 207, 0.18));
+  background-color: var(--msg-fill, #3a3a3a);
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+/* 不透明底衬，聚光灯叠在上方 */
+.card-spotlight--msg-user::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--msg-fill, #3a3a3a);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.card-spotlight--msg-user::before {
+  display: block;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.card-spotlight--msg-user:hover::before,
+.card-spotlight--msg-user:focus-within::before,
+.card-spotlight--msg-user.is-active::before {
+  opacity: 0.28;
+}
+
+.card-spotlight--msg-user > * {
+  position: relative;
+  z-index: 2;
+}
+
+.card-spotlight--media {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+}
+
+.card-spotlight--media::before {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.card-spotlight--media:hover::before,
+.card-spotlight--media:focus-within::before,
+.card-spotlight--media.is-active::before {
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-spotlight::before {
+    display: none;
+  }
+}

@@ -1,0 +1,252 @@
+/* 嵌入 chat 时：主站 tokens 映射到教案 generator 变量，覆盖暖色主题 */
+
+@import url('tokens.css');
+
+html.lesson-plan-embed {
+  color-scheme: dark light;
+
+  /* 将 generator.css 的 --color-* 桥接到 chat 主题 */
+  --color-primary: var(--accent-primary, #b497cf);
+  --color-primary-active: var(--accent-primary-hover, var(--accent-primary, #c9aed9));
+  --color-primary-disabled: color-mix(in srgb, var(--accent-primary, #b497cf) 35%, var(--bg-elevated));
+  --color-on-primary: var(--text-on-accent, #ffffff);
+
+  --color-ink: var(--text-primary);
+  --color-body: var(--text-secondary);
+  --color-body-strong: var(--text-primary);
+  --color-muted: var(--text-tertiary);
+  --color-muted-soft: var(--text-tertiary);
+
+  --color-canvas: var(--bg-canvas);
+  --color-surface-soft: var(--bg-elevated);
+  --color-surface-card: var(--bg-elevated);
+  --color-surface-cream-strong: var(--bg-active);
+  --color-surface-dark: var(--bg-elevated);
+  --color-surface-dark-elevated: var(--bg-elevated-2, var(--bg-elevated));
+  --color-surface-dark-soft: var(--bg-hover);
+  --color-on-dark: var(--text-primary);
+  --color-on-dark-soft: var(--text-secondary);
+
+  --color-hairline: var(--border-subtle);
+  --color-hairline-soft: var(--border-subtle);
+
+  --color-accent-teal: var(--brand, var(--accent-primary));
+  --color-accent-amber: var(--warning);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--danger);
+
+  --font-display: var(--font-sans, 'Inter', system-ui, sans-serif);
+  --font-body: var(--font-sans, 'Inter', system-ui, sans-serif);
+  --font-mono: var(--font-mono, ui-monospace, monospace);
+
+  --shadow-soft: var(--shadow-xs);
+  --shadow-card: var(--shadow-md);
+  --shadow-card-hover: var(--shadow-lg);
+  --shadow-modal: var(--shadow-xl);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 28%, transparent);
+
+  --legacy-blue: var(--accent-primary);
+  --legacy-bg: var(--bg-canvas);
+}
+
+html.lesson-plan-embed,
+html.lesson-plan-embed body {
+  font-family: var(--font-body);
+  background: var(--bg-canvas) !important;
+  color: var(--text-primary) !important;
+  min-height: 100%;
+}
+
+html.lesson-plan-embed body {
+  background: var(--bg-canvas) !important;
+  background-image: none !important;
+}
+
+html.lesson-plan-embed .lesson-plan-topbar {
+  display: none !important;
+}
+
+html.lesson-plan-embed .container {
+  height: 100%;
+  min-height: 0;
+  padding: 12px;
+  gap: 12px;
+  animation: none;
+  grid-template-columns: minmax(280px, 380px) 1fr;
+}
+
+html.lesson-plan-embed .panel,
+html.lesson-plan-embed .preview {
+  background: var(--bg-elevated);
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.lesson-plan-embed .panel h1,
+html.lesson-plan-embed h1 {
+  font-family: var(--font-body);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  color: var(--text-primary);
+}
+
+html.lesson-plan-embed label,
+html.lesson-plan-embed .split-title,
+html.lesson-plan-embed .hint,
+html.lesson-plan-embed .field label {
+  color: var(--text-primary);
+}
+
+html.lesson-plan-embed .hint,
+html.lesson-plan-embed .dir-tpl-row,
+html.lesson-plan-embed .progress-text,
+html.lesson-plan-embed .preview-header {
+  color: var(--text-tertiary);
+}
+
+html.lesson-plan-embed input,
+html.lesson-plan-embed select,
+html.lesson-plan-embed textarea {
+  background: var(--bg-input, var(--bg-elevated));
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+}
+
+html.lesson-plan-embed input:focus,
+html.lesson-plan-embed select:focus,
+html.lesson-plan-embed textarea:focus {
+  border-color: color-mix(in srgb, var(--accent-primary) 55%, var(--border-subtle));
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+
+html.lesson-plan-embed .split-title {
+  border-top-color: var(--border-subtle);
+}
+
+html.lesson-plan-embed .lesson-item {
+  background: var(--bg-hover);
+  border-color: var(--border-subtle);
+}
+
+html.lesson-plan-embed .lesson-item-head {
+  color: var(--text-secondary);
+}
+
+html.lesson-plan-embed .ai-box {
+  background: color-mix(in srgb, var(--accent-primary) 8%, var(--bg-elevated));
+  border-color: var(--border-subtle);
+  border-left-color: var(--accent-primary);
+  color: var(--text-secondary);
+}
+
+html.lesson-plan-embed button {
+  font-family: var(--font-body);
+}
+
+html.lesson-plan-embed .primary {
+  background: var(--accent-primary);
+  color: var(--text-on-accent, #fff);
+}
+
+html.lesson-plan-embed .primary:hover:not(:disabled) {
+  background: var(--accent-primary-hover, var(--accent-primary));
+  filter: brightness(1.05);
+}
+
+html.lesson-plan-embed .secondary {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+}
+
+html.lesson-plan-embed .secondary:hover:not(:disabled) {
+  background: var(--bg-active);
+}
+
+html.lesson-plan-embed .danger {
+  background: var(--danger-bg, color-mix(in srgb, var(--danger) 14%, transparent));
+  color: var(--danger);
+}
+
+html.lesson-plan-embed .log-box {
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+html.lesson-plan-embed .preview {
+  background: #ffffff;
+  border-color: var(--border-subtle);
+  min-height: 0;
+}
+
+html.lesson-plan-embed .preview-header {
+  border-color: var(--border-subtle);
+}
+
+html.lesson-plan-embed .preview iframe {
+  background: #ffffff;
+}
+
+html.lesson-plan-embed .progress-bar {
+  background: var(--bg-hover);
+}
+
+html.lesson-plan-embed .progress-fill {
+  background: var(--accent-primary);
+}
+
+html.lesson-plan-embed .modal-overlay {
+  background: var(--bg-overlay);
+}
+
+html.lesson-plan-embed .modal-box {
+  background: var(--bg-elevated);
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-lg);
+}
+
+html.lesson-plan-embed .modal-box textarea {
+  background: var(--bg-input, var(--bg-elevated));
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+}
+
+html.lesson-plan-embed .dir-import-status {
+  color: var(--success);
+}
+
+html.lesson-plan-embed .dir-import-status.bad {
+  color: var(--danger);
+}
+
+html.lesson-plan-embed .step {
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-hover);
+  color: var(--text-tertiary);
+}
+
+html.lesson-plan-embed .step.active {
+  background: var(--accent-primary);
+  color: var(--text-on-accent, #fff);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+html.lesson-plan-embed .status-box,
+html.lesson-plan-embed #status {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 900px) {
+  html.lesson-plan-embed .container {
+    grid-template-columns: 1fr;
+  }
+}

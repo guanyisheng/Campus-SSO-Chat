@@ -1,0 +1,12 @@
+{
+  "appUrl": "https://openai.ynjw.com/",
+  "windowTitle": "校园智聊",
+  "width": 1180,
+  "height": 820,
+  "minWidth": 900,
+  "minHeight": 640,
+  "allowExternalLogin": true,
+  "allowedOrigins": [
+    "https://openai.ynjw.com"
+  ]
+}

@@ -1,0 +1,158 @@
+/* 教案工作区 — 嵌入 chat.php 右侧，打开时占满侧栏以外区域（不显示对话） */
+
+body.has-lesson-plan-workspace .app-main {
+  display: none !important;
+}
+
+body.has-lesson-plan-workspace.has-code-workspace .app-main {
+  display: none !important;
+}
+
+.lesson-plan-workspace {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  display: none;
+  flex-direction: column;
+  background: var(--bg-canvas);
+  height: 100dvh;
+  position: relative;
+}
+
+body.has-lesson-plan-workspace .lesson-plan-workspace {
+  display: flex;
+}
+
+.lesson-plan-workspace__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  background: var(--bg-elevated);
+}
+
+.lesson-plan-workspace__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.lesson-plan-workspace__status {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lesson-plan-workspace__status.is-running {
+  color: var(--accent-primary, #7c6cff);
+}
+
+.lesson-plan-workspace__status.is-done {
+  color: #22c55e;
+}
+
+.lesson-plan-workspace__actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lesson-plan-ws-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.lesson-plan-ws-action:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.lesson-plan-workspace__frame-wrap {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  background: var(--bg-canvas);
+}
+
+.lesson-plan-workspace__frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  background: var(--bg-canvas);
+}
+
+/* 挂起浮标：工作区关闭后仍可回到进行中的任务 */
+.lesson-plan-float {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + var(--keyboard-offset, 0px));
+  z-index: 120;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  max-width: min(92vw, 320px);
+}
+
+.lesson-plan-float[hidden] {
+  display: none !important;
+}
+
+.lesson-plan-float.is-running {
+  border-color: color-mix(in srgb, var(--accent-primary, #7c6cff) 40%, var(--border-subtle));
+}
+
+.lesson-plan-float.is-running::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-primary, #7c6cff);
+  animation: lesson-plan-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes lesson-plan-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.sidebar-item.is-lesson-active {
+  background: var(--bg-active);
+}
+
+@media (max-width: 1023px) {
+  body.has-lesson-plan-workspace .lesson-plan-workspace {
+    width: 100%;
+  }
+}

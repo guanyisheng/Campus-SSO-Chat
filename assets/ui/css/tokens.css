@@ -1,0 +1,174 @@
+@charset "UTF-8";
+
+/* ============================================================
+   Design Tokens · CSS Variables
+   默认暗色；html[data-theme="light"] 为白天主题
+   ============================================================ */
+
+:root {
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  --fs-display: 32px;
+  --fs-h1: 28px;
+  --fs-h2: 24px;
+  --fs-h3: 20px;
+  --fs-h4: 18px;
+  --fs-h5: 16px;
+  --fs-body-lg: 16px;
+  --fs-body: 14px;
+  --fs-body-sm: 13px;
+  --fs-caption: 12px;
+
+  --lh-tight: 1.25;
+  --lh-snug: 1.4;
+  --lh-normal: 1.6;
+  --lh-relaxed: 1.75;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  --sp-0: 0;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+  --sp-20: 80px;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-pill: 9999px;
+
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-drawer: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+
+  /* 侧栏宽度：固定像素，避免 25% 在大屏上过宽 */
+  --sidebar-w: 220px;
+  --admin-sidebar-w: 240px;
+  --mobile-header-h: 52px;
+  --mobile-bottom-h: 64px;
+  --chat-max-w: 768px;
+}
+
+/* ---------- 暗色主题 (默认) ---------- */
+:root,
+[data-theme="dark"] {
+  --bg-canvas: #000000;
+  --bg-sidebar: #000000;
+  --bg-elevated: #2f2f2f;
+  --bg-elevated-2: #3a3a3a;
+  --bg-surface: #2a2a2a;
+  --bg-hover: #2a2a2a;
+  --bg-active: #3a3a3a;
+  --bg-overlay: rgba(0, 0, 0, 0.55);
+  --bg-input: #2f2f2f;
+
+  --text-primary: #ececec;
+  --text-secondary: #b4b4b4;
+  --text-tertiary: #8e8e8e;
+  --text-disabled: #6b6b6b;
+  --text-inverse: #0d0d0d;
+  --text-on-accent: #ffffff;
+  --text-link: #7fb7ff;
+
+  --border-subtle: #2d2d2d;
+  --border-default: #3d3d3d;
+  --border-strong: #525252;
+
+  --brand: #10a37f;
+  --brand-hover: #0e906f;
+  --accent-primary: #b497cf;
+  --accent-primary-hover: #c9aed9;
+
+  --success: #22c55e;
+  --success-bg: rgba(34, 197, 94, 0.12);
+  --warning: #f0b72f;
+  --warning-bg: rgba(240, 183, 47, 0.14);
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.14);
+  --info: #3b82f6;
+  --info-bg: rgba(59, 130, 246, 0.14);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.18);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.22);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.36);
+  --shadow-xl: 0 24px 56px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- 白天主题 ---------- */
+[data-theme="light"] {
+  --bg-canvas: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-elevated-2: #f0f0f0;
+  --bg-surface: #ffffff;
+  --bg-hover: #ececec;
+  --bg-active: #e3e3e3;
+  --bg-overlay: rgba(15, 23, 42, 0.35);
+  --bg-input: #ffffff;
+
+  --text-primary: #0d0d0d;
+  --text-secondary: #444654;
+  --text-tertiary: #6e6e80;
+  --text-disabled: #acacbe;
+  --text-inverse: #ffffff;
+  --text-on-accent: #ffffff;
+  --text-link: #2563eb;
+
+  --border-subtle: #e5e5e5;
+  --border-default: #d9d9e3;
+  --border-strong: #c5c5d2;
+
+  --brand: #10a37f;
+  --brand-hover: #0d966f;
+  --accent-primary: #8b6cad;
+  --accent-primary-hover: #7a5c99;
+
+  --success: #16a34a;
+  --success-bg: rgba(22, 163, 74, 0.1);
+  --warning: #d97706;
+  --warning-bg: rgba(217, 119, 6, 0.1);
+  --danger: #dc2626;
+  --danger-bg: rgba(220, 38, 38, 0.1);
+  --info: #2563eb;
+  --info-bg: rgba(37, 99, 235, 0.1);
+
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-sm: 0 2px 6px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.1);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
+  --shadow-xl: 0 24px 56px rgba(15, 23, 42, 0.14);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

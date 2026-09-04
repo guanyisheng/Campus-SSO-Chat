@@ -1,0 +1,151 @@
+/* 聊天页浅色主题补全（修复未随 data-theme 反转的颜色） */
+
+[data-theme="light"] .quota-bars__track {
+  background: color-mix(in srgb, var(--border-default) 65%, transparent);
+}
+
+[data-theme="light"] .msg--user,
+[data-theme="light"] .msg-user {
+  --msg-fill: #e8e8ed;
+  --msg-border: color-mix(in srgb, var(--accent-primary) 22%, var(--border-subtle));
+}
+
+[data-theme="light"] body.has-chat-aurora .msg--user .msg-bubble--user .card-spotlight--msg-user,
+[data-theme="light"] body.has-chat-aurora .chat-stream .msg-user .msg-bubble--user .card-spotlight--msg-user {
+  background-color: var(--msg-fill, #e8e8ed);
+  border-color: var(--msg-border);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .card-spotlight--media {
+  border-color: var(--border-subtle);
+  background-color: var(--bg-elevated);
+  --spotlight-color: color-mix(in srgb, var(--accent-primary) 14%, transparent);
+}
+
+[data-theme="light"] .msg-toolbar,
+[data-theme="light"] .msg__actions {
+  border-top-color: var(--border-subtle);
+}
+
+[data-theme="light"] .msg-toolbar button,
+[data-theme="light"] .msg__actions button {
+  color: var(--text-secondary);
+  border-color: var(--border-default);
+  background: var(--bg-elevated);
+}
+
+[data-theme="light"] .msg-toolbar button:hover,
+[data-theme="light"] .msg__actions button:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+[data-theme="light"] .media-gen-progress {
+  background: var(--bg-elevated);
+  border-color: var(--border-subtle);
+}
+
+[data-theme="light"] .media-ref-item {
+  background: var(--bg-elevated-2);
+  border-color: var(--border-subtle);
+}
+
+[data-theme="light"] .followup-chip,
+[data-theme="light"] .followups-row button {
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  border-color: var(--border-default);
+}
+
+[data-theme="light"] .followup-chip:hover,
+[data-theme="light"] .followups-row button:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+[data-theme="light"] .composer__bar {
+  background: var(--bg-elevated);
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .sidebar-item.is-active,
+[data-theme="light"] .conv-item.active {
+  background: var(--bg-active);
+}
+
+[data-theme="light"] .alert-error {
+  color: var(--danger);
+  background: var(--danger-bg);
+  border-color: color-mix(in srgb, var(--danger) 25%, transparent);
+}
+
+[data-theme="light"] .alert-success {
+  color: var(--success);
+  background: var(--success-bg);
+  border-color: color-mix(in srgb, var(--success) 25%, transparent);
+}
+
+[data-theme="light"] .c-icon-btn {
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .c-icon-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+[data-theme="light"] .theme-toggle-btn {
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .theme-toggle-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+[data-theme="light"] .chat-stream .msg-user,
+[data-theme="light"] .msg--user {
+  --msg-fill: #e8e8ed;
+  --msg-border: color-mix(in srgb, var(--accent-primary) 22%, var(--border-subtle));
+}
+
+[data-theme="light"] body.has-chat-aurora .msg--user .msg-bubble--user .card-spotlight--msg-user,
+[data-theme="light"] body.has-chat-aurora .chat-stream .msg-user .msg-bubble--user .card-spotlight--msg-user {
+  background-color: var(--msg-fill, #e8e8ed);
+  border-color: var(--msg-border);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .card-spotlight--msg-user::after {
+  background: var(--msg-fill, #e8e8ed);
+}
+
+[data-theme="light"] body.has-chat-aurora .msg--ai .msg-bubble--ai .border-glow-card--msg,
+[data-theme="light"] body.has-chat-aurora .msg-assistant .msg-bubble--ai .border-glow-card--msg {
+  --card-bg: var(--bg-elevated);
+  --msg-fill: var(--bg-elevated);
+  --msg-border: var(--border-subtle);
+}
+
+[data-theme="light"] .msg-media-card__bar {
+  border-top-color: var(--border-subtle);
+}
+
+[data-theme="light"] .msg-media-download {
+  border-color: var(--border-default);
+  background: var(--bg-elevated);
+}
+
+[data-theme="light"] .msg-media-download:hover {
+  background: var(--bg-hover);
+}
+
+[data-theme="light"] .msg-media-thumb {
+  background: var(--bg-elevated-2);
+}
+
+[data-theme="light"] body.has-chat-aurora .app-main {
+  background: #ffffff;
+}

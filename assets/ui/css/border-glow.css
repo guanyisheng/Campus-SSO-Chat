@@ -1,0 +1,232 @@
+/* BorderGlow — React Bits port */
+
+.border-glow-card {
+  --edge-proximity: 0;
+  --cursor-angle: 45deg;
+  --edge-sensitivity: 30;
+  --color-sensitivity: calc(var(--edge-sensitivity) + 20);
+  --border-radius: 28px;
+  --glow-padding: 40px;
+  --cone-spread: 25;
+  --fill-opacity: 0.5;
+
+  position: relative;
+  border-radius: var(--border-radius);
+  isolation: isolate;
+  transform: translate3d(0, 0, 0.01px);
+  display: grid;
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: var(--card-bg, #120f17);
+  overflow: visible;
+  box-shadow:
+    rgba(0, 0, 0, 0.08) 0 1px 2px,
+    rgba(0, 0, 0, 0.08) 0 2px 4px,
+    rgba(0, 0, 0, 0.06) 0 4px 8px,
+    rgba(0, 0, 0, 0.04) 0 8px 16px;
+}
+
+.border-glow-card::before,
+.border-glow-card::after,
+.border-glow-card > .edge-light {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  transition: opacity 0.25s ease-out;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.border-glow-card:not(:hover):not(.sweep-active)::before,
+.border-glow-card:not(:hover):not(.sweep-active)::after,
+.border-glow-card:not(:hover):not(.sweep-active) > .edge-light {
+  opacity: 0;
+  transition: opacity 0.75s ease-in-out;
+}
+
+.border-glow-card::before {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--card-bg, #120f17) 0 100%) padding-box,
+    linear-gradient(rgb(255 255 255 / 0%) 0% 100%) border-box,
+    var(--gradient-one) border-box,
+    var(--gradient-two) border-box,
+    var(--gradient-three) border-box,
+    var(--gradient-four) border-box,
+    var(--gradient-five) border-box,
+    var(--gradient-six) border-box,
+    var(--gradient-seven) border-box,
+    var(--gradient-base) border-box;
+  opacity: calc((var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
+  mask-image:
+    conic-gradient(
+      from var(--cursor-angle) at center,
+      black calc(var(--cone-spread) * 1%),
+      transparent calc((var(--cone-spread) + 15) * 1%),
+      transparent calc((100 - var(--cone-spread) - 15) * 1%),
+      black calc((100 - var(--cone-spread)) * 1%)
+    );
+}
+
+.border-glow-card::after {
+  border: 1px solid transparent;
+  background:
+    var(--gradient-one) padding-box,
+    var(--gradient-two) padding-box,
+    var(--gradient-three) padding-box,
+    var(--gradient-four) padding-box,
+    var(--gradient-five) padding-box,
+    var(--gradient-six) padding-box,
+    var(--gradient-seven) padding-box,
+    var(--gradient-base) padding-box;
+  mask-image:
+    linear-gradient(to bottom, black, black),
+    radial-gradient(ellipse at 50% 50%, black 40%, transparent 65%),
+    radial-gradient(ellipse at 66% 66%, black 5%, transparent 40%),
+    radial-gradient(ellipse at 33% 33%, black 5%, transparent 40%),
+    radial-gradient(ellipse at 66% 33%, black 5%, transparent 40%),
+    radial-gradient(ellipse at 33% 66%, black 5%, transparent 40%),
+    conic-gradient(from var(--cursor-angle) at center, transparent 5%, black 15%, black 85%, transparent 95%);
+  mask-composite: subtract, add, add, add, add, add;
+  opacity: calc(var(--fill-opacity) * (var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
+  mix-blend-mode: soft-light;
+}
+
+.border-glow-card > .edge-light {
+  inset: calc(var(--glow-padding) * -1);
+  z-index: 1;
+  mask-image:
+    conic-gradient(
+      from var(--cursor-angle) at center,
+      black 2.5%,
+      transparent 10%,
+      transparent 90%,
+      black 97.5%
+    );
+  opacity: calc((var(--edge-proximity) - var(--edge-sensitivity)) / (100 - var(--edge-sensitivity)));
+  mix-blend-mode: plus-lighter;
+}
+
+.border-glow-card > .edge-light::before {
+  content: "";
+  position: absolute;
+  inset: var(--glow-padding);
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px var(--glow-color),
+    inset 0 0 1px 0 var(--glow-color-60),
+    inset 0 0 3px 0 var(--glow-color-50),
+    inset 0 0 6px 0 var(--glow-color-40),
+    inset 0 0 15px 0 var(--glow-color-30),
+    inset 0 0 25px 2px var(--glow-color-20),
+    inset 0 0 50px 2px var(--glow-color-10),
+    0 0 1px 0 var(--glow-color-60),
+    0 0 3px 0 var(--glow-color-50),
+    0 0 6px 0 var(--glow-color-40),
+    0 0 15px 0 var(--glow-color-30),
+    0 0 25px 2px var(--glow-color-20),
+    0 0 50px 2px var(--glow-color-10);
+}
+
+.border-glow-inner {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: visible;
+  z-index: 2;
+  border-radius: inherit;
+}
+
+/* ── 聊天输入框 ── */
+.border-glow-card--composer {
+  --card-bg: color-mix(in srgb, var(--bg-elevated) 90%, transparent);
+  --border-radius: 20px;
+  --glow-padding: 32px;
+  width: 100%;
+  max-width: var(--chat-max-w);
+  margin: 0 auto;
+}
+
+.border-glow-card--composer .composer__bar,
+#chat-form.composer__bar.auth-card--composer {
+  background: transparent;
+  border: 0;
+  border-radius: inherit;
+  box-shadow: none;
+  width: 100%;
+  max-width: none;
+  padding: 20px 18px 16px;
+}
+
+.composer-glow-wrap {
+  width: 100%;
+}
+
+/* ── 认证卡片 ── */
+.border-glow-card--auth {
+  --card-bg: color-mix(in srgb, var(--bg-elevated) 90%, transparent);
+  --border-radius: 20px;
+  --glow-padding: 32px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.border-glow-card--auth .auth-card {
+  background: transparent;
+  border: 0;
+  border-radius: inherit;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  width: 100%;
+  max-width: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .border-glow-card::before,
+  .border-glow-card::after,
+  .border-glow-card > .edge-light {
+    display: none;
+  }
+}
+
+/* ── AI 消息气泡 ── */
+.border-glow-card--msg {
+  --card-bg: #120f17;
+  --border-radius: 20px;
+  --glow-padding: 22px;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.border-glow-card--msg .border-glow-inner {
+  background: var(--card-bg);
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.border-glow-card--msg .msg__content,
+.border-glow-card--msg .msg-content {
+  padding: 10px 14px;
+  background: transparent;
+}
+
+.border-glow-card--msg .msg__actions,
+.border-glow-card--msg .msg-toolbar {
+  padding: 0 14px 8px;
+  background: transparent;
+}
+
+body.has-chat-aurora .border-glow-card--msg {
+  --card-bg: #1c1a26;
+}
+
+body.has-chat-aurora .card-spotlight--msg-user {
+  background-color: var(--msg-fill, #3a3a3a);
+}
+
+body.has-chat-aurora .card-spotlight--msg-user::after {
+  background: var(--msg-fill, #3a3a3a);
+}

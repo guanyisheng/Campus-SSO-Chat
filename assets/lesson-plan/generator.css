@@ -1,0 +1,620 @@
+/* Lesson generator — warm cream + coral (Claude editorial) + prior glass / motion UI */
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: linear-gradient(
+    165deg,
+    var(--color-surface-soft) 0%,
+    var(--color-canvas) 40%,
+    var(--color-surface-soft) 100%
+  );
+  color: var(--color-body-strong);
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.lesson-plan-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+}
+
+.lesson-plan-topbar__back {
+  color: var(--color-body-strong);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.lesson-plan-topbar__back:hover {
+  text-decoration: underline;
+}
+
+.lesson-plan-topbar__title {
+  font-size: 15px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.lesson-plan-topbar__quota {
+  font-size: 12px;
+  color: var(--color-body-muted, #666);
+  white-space: nowrap;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: var(--space-md);
+  flex: 1;
+  min-height: 0;
+  height: auto;
+  padding: var(--space-md);
+  box-sizing: border-box;
+  animation: shellIn var(--dur) var(--ease-out-expo) both;
+}
+
+@keyframes shellIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.992);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.panel,
+.preview {
+  background: rgba(250, 249, 245, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  border: 1px solid var(--color-hairline-soft);
+  transition: box-shadow 0.45s var(--ease-apple), transform 0.45s var(--ease-apple);
+}
+
+.panel {
+  padding: var(--space-md);
+  overflow-y: auto;
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+}
+
+.stepper {
+  display: flex;
+  gap: var(--space-xs);
+  margin: 0 0 var(--space-sm);
+}
+
+.step {
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  background: var(--color-hairline);
+  color: var(--color-muted);
+  font-weight: 500;
+  transition: transform 0.3s var(--ease-apple), background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.step.active {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: 0 4px 14px rgba(204, 120, 92, 0.28);
+}
+
+.step-section {
+  display: none;
+}
+
+.step-section.active {
+  display: block;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin: 0 0 14px;
+  color: var(--color-ink);
+}
+
+.hint {
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0 0 var(--space-sm);
+  line-height: 1.55;
+}
+
+.field {
+  margin-bottom: var(--space-sm);
+}
+
+.field label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: var(--color-body-strong);
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  padding: 9px 14px;
+  font-size: 14px;
+  outline: none;
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background: var(--color-canvas);
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.split-title {
+  margin: var(--space-md) 0 var(--space-xs);
+  padding-top: 10px;
+  border-top: 1px dashed var(--color-hairline);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+.dir-tpl-row {
+  font-size: 12px;
+  color: var(--color-muted);
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.dir-tpl-row button {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  box-sizing: border-box;
+  background: rgba(24, 23, 21, 0.42);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: modalFadeIn 0.35s var(--ease-out-expo) both;
+}
+
+.modal-overlay[hidden] {
+  display: none !important;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-box {
+  width: min(540px, 100%);
+  max-height: min(88vh, 720px);
+  overflow: auto;
+  background: rgba(250, 249, 245, 0.98);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-modal);
+  border: 1px solid var(--color-hairline);
+  animation: modalBoxIn 0.42s var(--ease-out-expo) both;
+}
+
+@keyframes modalBoxIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-box textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 260px;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  resize: vertical;
+  font-family: var(--font-body);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+  margin-top: var(--space-sm);
+}
+
+.dir-import-status {
+  margin-top: var(--space-xs);
+  font-size: 12px;
+  color: var(--color-success);
+  min-height: 1.25em;
+}
+
+.dir-import-status.bad {
+  color: var(--color-error);
+}
+
+.lesson-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lesson-item {
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  background: var(--color-surface-card);
+}
+
+.lesson-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xs);
+  font-size: 13px;
+  color: var(--color-body);
+}
+
+.danger {
+  background: rgba(198, 69, 69, 0.12);
+  color: var(--color-error);
+  transition: transform 0.28s var(--ease-spring), box-shadow 0.28s ease, filter 0.28s ease;
+}
+
+.ai-box {
+  border: 1px solid var(--color-hairline);
+  background: var(--color-surface-soft);
+  border-left: 3px solid var(--color-accent-teal);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  font-size: 13px;
+  color: var(--color-body-strong);
+  line-height: 1.6;
+  margin-bottom: var(--space-sm);
+}
+
+.progress-wrap {
+  margin: 10px 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background: var(--color-hairline);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-active));
+  transition: width 0.38s var(--ease-out-expo);
+  border-radius: var(--radius-pill);
+}
+
+.progress-text {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.log-box {
+  height: 160px;
+  overflow-y: auto;
+  background: var(--color-surface-dark);
+  color: var(--color-on-dark);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xs);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin-top: 10px;
+  font-family: var(--font-mono);
+}
+
+button {
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 10px 20px;
+  min-height: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: transform 0.32s var(--ease-spring), box-shadow 0.32s var(--ease-apple), filter 0.22s ease, opacity 0.2s ease, background 0.2s ease;
+  will-change: transform;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1.5px) scale(1.01);
+  box-shadow: var(--shadow-card-hover);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+}
+
+.primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--color-primary-active);
+}
+
+.secondary {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  border: 1px solid var(--color-hairline);
+}
+
+.preview-header {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--color-hairline);
+  font-size: 13px;
+  color: var(--color-muted);
+  min-height: 18px;
+}
+
+iframe {
+  width: 100%;
+  flex: 1;
+  border: none;
+  background: #fff;
+  transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+  transform-origin: 50% 12%;
+}
+
+.preview.motion-iframe-surge iframe {
+  animation: iframeSurge 0.58s var(--ease-out-expo) both;
+}
+
+@keyframes iframeSurge {
+  from {
+    opacity: 0.5;
+    transform: scale(0.986) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.preview.motion-preview-open {
+  animation: previewOpen 0.62s var(--ease-out-expo) both;
+}
+
+@keyframes previewOpen {
+  from {
+    opacity: 0.62;
+    transform: scale(0.992) translateY(8px);
+    box-shadow: var(--shadow-soft);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    box-shadow: var(--shadow-card);
+  }
+}
+
+@keyframes panelSurge {
+  from {
+    opacity: 0.55;
+    transform: translateY(14px) scale(0.988);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.step-section.motion-panel-surge {
+  animation: panelSurge 0.52s var(--ease-out-expo) both;
+}
+
+.lesson-item.motion-lesson-in {
+  animation: lessonIn 0.45s var(--ease-out-expo) both;
+}
+
+@keyframes lessonIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.panel.motion-panel-open {
+  animation: panelOpen 0.5s var(--ease-out-expo) both;
+}
+
+@keyframes panelOpen {
+  from {
+    opacity: 0.7;
+    transform: translateX(-6px) scale(0.993);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes btnPressSpring {
+  0% {
+    transform: scale(0.96);
+    filter: brightness(1.05);
+  }
+  55% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+button.motion-btn-press:not(:disabled) {
+  animation: btnPressSpring 0.34s var(--ease-spring) both;
+}
+
+.panel,
+.preview {
+  transition: box-shadow 0.4s var(--ease-apple), transform 0.4s var(--ease-apple);
+}
+
+/* Confetti (kept from prior generator) */
+.confetti-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -16px;
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0.95;
+  box-shadow: var(--shadow-soft);
+  animation-name: confettiFall;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--confetti-drift, 0px), 110vh, 0) rotate(720deg);
+    opacity: 0.9;
+  }
+}
+
+/* Lesson sheet print layout (unchanged structure) */
+.lesson-sheet-join {
+  display: block;
+  width: 100%;
+  max-width: 716px;
+  margin: 0 auto;
+  border: 1px solid #000000;
+  box-sizing: border-box;
+}
+
+.lesson-sheet-join > table {
+  width: 100%;
+  margin: 0;
+  border: none;
+  border-collapse: collapse;
+  vertical-align: top;
+}
+
+.lesson-sheet-join > table + table {
+  border-top: 1px solid #000000;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .container,
+  .step-section.motion-panel-surge,
+  .preview.motion-iframe-surge iframe,
+  .preview.motion-preview-open,
+  .panel.motion-panel-open,
+  .lesson-item.motion-lesson-in,
+  .modal-overlay,
+  .modal-box,
+  button.motion-btn-press {
+    animation: none !important;
+  }
+
+  button,
+  .step {
+    transition: none !important;
+  }
+
+  .confetti-root,
+  .confetti-piece {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .container {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+}

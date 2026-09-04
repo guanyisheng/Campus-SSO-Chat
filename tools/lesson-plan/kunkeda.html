@@ -1,0 +1,3084 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN" class="__HTML_CLASS__"__HTML_THEME__>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>教案</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Inter:wght@400;500&family=JetBrains+Mono&display=swap" rel="stylesheet" />
+  __EMBED_THEME_CSS__
+  __LESSON_DESIGN_LINK__
+  <link rel="stylesheet" href="__LESSON_GENERATOR_CSS__" />
+  <script>
+    window.LESSON_PLAN_CFG = __LESSON_PLAN_CFG__;
+  </script>
+</head>
+<body>
+  <header class="lesson-plan-topbar">
+    <a class="lesson-plan-topbar__back" href="__CHAT_URL__">← 返回对话</a>
+    <div class="lesson-plan-topbar__title">教案生成</div>
+    <div class="lesson-plan-topbar__quota" id="lesson-plan-quota" aria-live="polite"></div>
+  </header>
+  <div class="container">
+    <section class="panel">
+      <h1>教案</h1>
+      <div class="stepper">
+        <span id="stepPill1" class="step active">1</span>
+        <span id="stepPill2" class="step">2</span>
+      </div>
+
+      <div id="step1" class="step-section active">
+
+        <div class="field">
+          <label for="courseName">课程名称</label>
+          <input id="courseName" value="人工智能应用" />
+        </div>
+
+        <div class="field">
+          <label for="examType">考试方式</label>
+          <select id="examType">
+            <option value="考试">考试</option>
+            <option value="考查">考查</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="courseCode">课程代码</label>
+          <input id="courseCode" value="5311001064" />
+        </div>
+
+        <div class="field">
+          <label for="className">授课班级</label>
+          <input id="className" value="24级计算机应用技术(三年制)1班、2班" />
+        </div>
+
+        <div class="field">
+          <label for="aiGenScope">AI 生成范围</label>
+          <select id="aiGenScope">
+            <option value="full">整体教学设计 + 学时详细教案</option>
+            <option value="lessonsOnly">仅学时详细教案（补教案）</option>
+          </select>
+        </div>
+        <p class="dir-tpl-row" style="margin: -4px 0 10px">
+          每课次单独请求 AI 一次；「整体+课次」时仅<strong>第 1 课</strong>含整体教学设计，其余课仅填学时详细教案。每课次消耗 <strong>1 次对话额度</strong>。
+        </p>
+
+        <div class="actions" style="margin-top:4px">
+          <button type="button" id="btnOpenDirImport" class="secondary">目录导入</button>
+        </div>
+        <div class="dir-tpl-row">
+          <button type="button" id="btnDlDirTpl" class="secondary">点此下载模板</button>
+        </div>
+
+        <div class="split-title">课次</div>
+        <div class="lesson-list" id="lessonList"></div>
+        <div class="actions">
+          <button id="btnAddLesson" class="secondary">+</button>
+        </div>
+
+        <div class="actions">
+          <button id="btnGenerate" class="primary">生成预览</button>
+          <button id="btnDownload" class="secondary">导出</button>
+          <button id="btnToStep2" class="secondary">下一步</button>
+        </div>
+      </div>
+
+      <div id="step2" class="step-section">
+
+        <div class="field">
+          <label for="modelName">模型</label>
+          <select id="modelName">
+            <option value="">…</option>
+          </select>
+        </div>
+
+        <div class="actions">
+          <button id="btnRunAI" class="primary">开始生成</button>
+          <button id="btnAbortAI" class="secondary" type="button" style="display:none">中断</button>
+          <button id="btnBackToStep1" class="secondary">返回</button>
+          <button id="btnDownloadStep2" class="secondary">导出</button>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-bar">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+          <div id="progressText" class="progress-text"></div>
+        </div>
+
+        <div id="logBox" class="log-box">[系统] 等待调用...</div>
+      </div>
+    </section>
+
+    <section class="preview">
+      <div class="preview-header" id="status"></div>
+      <iframe id="previewFrame"></iframe>
+    </section>
+
+    <div id="dirImportOverlay" class="modal-overlay" hidden>
+      <div class="modal-box" role="dialog" aria-modal="true">
+        <textarea id="dirPasteArea" placeholder="粘贴目录全文（与批量模板.txt 相同格式）"></textarea>
+        <div class="modal-actions">
+          <button type="button" id="btnDirApply" class="primary">识别填充</button>
+          <button type="button" id="btnDirCancel" class="secondary">关闭</button>
+        </div>
+        <div id="dirImportStatus" class="dir-import-status"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script>
+
+  <script id="builtInTemplate" type="text/plain"><!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 24.8.1.2 (Linux)"/>
+	<meta name="author" content="lenovo"/>
+	<meta name="created" content="2026-04-24T14:22:00"/>
+	<meta name="changedby" content="乙聲 管"/>
+	<meta name="changed" content="2026-04-24T14:22:00"/>
+	<meta name="AppVersion" content="16.0000"/>
+	<meta name="ICV" content="503626073EC7481F8CC69B18B9771988_13"/>
+	<meta name="KSOProductBuildVer" content="2052-12.1.0.25225"/>
+	<meta name="KSOTemplateDocerSaveRecord" content="eyJoZGlkIjoiODllYjg0Y2NhY2EwZjcyYmI5MjM3YmEwNjU2MGExMWMiLCJ1c2VySWQiOiI5NTIxNzc1NDIifQ=="/>
+	<style type="text/css">
+		@page { size: 8.27in 11.69in; margin-left: 0.74in; margin-right: 0.74in; margin-top: 0.99in; margin-bottom: 0.99in }
+		p { line-height: 115%; text-align: justify; orphans: 0; widows: 0; margin-bottom: 0.1in; direction: ltr; background: transparent }
+		p.cjk { font-family: "宋体" }
+	</style>
+</head>
+<body lang="en-US" link="#000080" vlink="#800000" dir="ltr">
+<div id="TextSection" dir="ltr"><p class="western" align="center" style="line-height: 100%; margin-bottom: 0in">
+	<br/>
+
+	</p>
+</div>
+<div id="Section1" dir="ltr"><p class="western" align="left" style="line-height: 100%; margin-left: 2.88in; margin-top: 0in; margin-bottom: 0.07in">
+	<font face="宋体"><span lang="zh-CN"><font face="黑体"><font size="5" style="font-size: 17pt">整体教学设计</font></font></span></font></p>
+	<center>
+		<table width="732" cellpadding="3" cellspacing="0">
+			<col width="96"/>
+			<col width="281"/>
+			<col width="119"/>
+			<col width="209"/>
+			<tr>
+				<td width="96" valign="top" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="center" style="margin-top: 0.1in">
+					<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>课程名称</b></font></span></font></p>
+				</td>
+				<td width="281" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="center" style="margin-top: 0.07in">
+					<font face="宋体"><span lang="zh-CN"><font color="#00b0f0"><font size="3" style="font-size: 12pt">人工智能应用
+					</font></font></span></font>
+					</p>
+				</td>
+				<td rowspan="2" width="119" valign="top" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="center" style="margin-top: 0in; margin-bottom: 0in">
+					<br/>
+
+					</p>
+					<p class="western" align="center" style="margin-left: 0.11in"><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>考试方式</b></font></span></font></p>
+				</td>
+				<td rowspan="2" width="209" valign="top" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="center" style="margin-top: 0in; margin-bottom: 0in">
+					<br/>
+
+					</p>
+					<p class="western" align="center"><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">考试</font><font color="#00b0f0"><font size="3" style="font-size: 12pt">☑</font></font><font size="3" style="font-size: 12pt">
+					</font><font size="3" style="font-size: 12pt">考查</font><font color="#00b0f0"><font size="3" style="font-size: 12pt">□</font></font></span></font></p>
+				</td>
+			</tr>
+			<tr>
+				<td width="96" valign="top" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="center">
+					<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>课程代码</b></font></span></font></p>
+				</td>
+				<td width="281" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="center">
+					<font color="#00b0f0"><font face="宋体, serif"><font size="3" style="font-size: 12pt">5311001064</font></font></font></p>
+				</td>
+			</tr>
+			<tr valign="top">
+				<td width="96" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="center" style="margin-top: 0.02in">
+					<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>授课班级</b></font></span></font></p>
+				</td>
+				<td colspan="3" width="622" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="center">
+					<font color="#00b0f0"><font face="宋体, serif"><font size="3" style="font-size: 12pt">24</font></font><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">级计算机应用技术</font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">(</font></font><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">三年制</font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">)1</font></font><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">班、</font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">2</font></font><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">班</font></span></font></font></p>
+				</td>
+			</tr>
+			<tr>
+				<td width="96" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="center" style="margin-right: 0.09in">
+					<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>整体教学设计策略</b></font><font size="3" style="font-size: 12pt"><b>
+					</b></font><font size="3" style="font-size: 12pt"><b>（</b></font><font size="3" style="font-size: 12pt">采用的教学设计模</font><font size="3" style="font-size: 12pt">
+					</font><font size="3" style="font-size: 12pt">型、设计方法或教学</font><font size="3" style="font-size: 12pt">
+					</font><font size="3" style="font-size: 12pt">设计理念等，也可绘</font><font size="3" style="font-size: 12pt">
+					</font><font size="3" style="font-size: 12pt">制图示进行说明</font><font size="3" style="font-size: 12pt"><b>）</b></font></span></font></p>
+				</td>
+				<td colspan="3" width="622" valign="top" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="left" style="margin-bottom: 0in">
+					<font face="宋体"><span lang="zh-CN"><font color="#ff0000"><font size="3" style="font-size: 12pt">根据课程名称和教材目录生成内容，</font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">300</font></font><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">字左右</font></span></font></font></p>
+					<p class="western" align="left"><br/>
+
+					</p>
+				</td>
+			</tr>
+			<tr>
+				<td width="96" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="center" style="margin-right: 0.09in; margin-top: 0in">
+					<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>教学内容分析（</b></font><font size="3" style="font-size: 12pt">教</font><font size="3" style="font-size: 12pt">
+					</font><span style="letter-spacing: 0.6pt"><font size="3" style="font-size: 12pt">材分</font></span><span style="letter-spacing: 0.5pt"><font size="3" style="font-size: 12pt">析与教学内容</font></span><font size="3" style="font-size: 12pt">分析</font><font size="3" style="font-size: 12pt"><b>）</b></font></span></font></p>
+				</td>
+				<td colspan="3" width="622" valign="top" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="left">
+					<font face="宋体"><span lang="zh-CN"><font color="#ff0000"><font size="3" style="font-size: 12pt">根据课程名称和教材目录生成内容，</font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">400</font></font><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">字左右</font></span></font></font></p>
+				</td>
+			</tr>
+			<tr>
+				<td width="96" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="center" style="margin-right: 0.09in; margin-top: 0in">
+					<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>学情分析（</b></font><font size="3" style="font-size: 12pt">从生源</font><font size="3" style="font-size: 12pt">
+					</font><font size="3" style="font-size: 12pt">组成、学习习惯、</font><font size="3" style="font-size: 12pt">
+					</font><font size="3" style="font-size: 12pt">知识基础、技能基</font><font size="3" style="font-size: 12pt">
+					</font><font size="3" style="font-size: 12pt">础、专业特性等方</font><font size="3" style="font-size: 12pt">
+					</font><font size="3" style="font-size: 12pt">面进行分析</font><font size="3" style="font-size: 12pt"><b>）</b></font></span></font></p>
+				</td>
+				<td colspan="3" width="622" valign="top" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="left" style="margin-top: 0in">
+					<font face="宋体"><span lang="zh-CN"><font color="#ff0000"><font size="3" style="font-size: 12pt">根据课程名称生成内容，</font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">400</font></font><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">字左右，每部分</font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">1</font></font><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">句话说明。</font></span></font></font></p>
+				</td>
+			</tr>
+			<tr>
+				<td width="96" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="center" style="margin-top: 0in; margin-bottom: 0in">
+					<font face="宋体"><span lang="zh-CN"><span style="letter-spacing: 0.2pt"><font size="3" style="font-size: 12pt"><b>教学</b></font></span><span style="letter-spacing: 0.2pt"><font size="3" style="font-size: 12pt"><b>目标（学习目</b></font></span><font size="3" style="font-size: 12pt"><b>
+					</b></font><font size="3" style="font-size: 12pt"><b>标）分析（</b></font><font size="3" style="font-size: 12pt">从知识目</font><font size="3" style="font-size: 12pt">
+					</font><span style="letter-spacing: 0.6pt"><font size="3" style="font-size: 12pt">标、技能目标</font></span><span style="letter-spacing: 0.6pt"><font size="3" style="font-size: 12pt">、素质</font></span><font size="3" style="font-size: 12pt">
+					</font><font size="3" style="font-size: 12pt">目标（或情感目标）、</font><font size="3" style="font-size: 12pt">
+					</font><font size="3" style="font-size: 12pt">思政目标等方面进行</font></span></font></p>
+					<p class="western" align="center" style="margin-top: 0in"><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">分析</font><font size="3" style="font-size: 12pt"><b>）</b></font></span></font></p>
+				</td>
+				<td colspan="3" width="622" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="left">
+					<font face="宋体"><span lang="zh-CN"><font color="#ff0000"><font size="3" style="font-size: 12pt">根据上面的内容生成</font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">4</font></font><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">个目标，每个目标写</font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">8</font></font><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">条，每条</font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">1</font></font><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">句话。</font></span></font></font></p>
+				</td>
+			</tr>
+			<tr>
+				<td width="96" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="center" style="margin-right: 0.09in; margin-top: 0in">
+					<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>教学重点与难点分析</b></font></span></font></p>
+				</td>
+				<td colspan="3" width="622" valign="top" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western">
+					<font face="宋体"><span lang="zh-CN"><font color="#ff0000"><font size="3" style="font-size: 12pt">根据教学内容和教学目标，分析生成教学重点、教学难点</font></font></span></font></p>
+				</td>
+			</tr>
+			<tr>
+				<td width="96" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="center">
+					<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>教学方法和手段</b></font></span></font></p>
+				</td>
+				<td colspan="3" width="622" valign="top" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western">
+					<font face="宋体"><span lang="zh-CN"><font color="#ff0000"><font size="3" style="font-size: 12pt">生成内容，</font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">300</font></font><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">字左右</font></span></font></font></p>
+				</td>
+			</tr>
+			<tr>
+				<td width="96" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="center" style="margin-right: 0.09in; margin-top: 0in">
+					<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQImWNgAAIAAAUAAWJVMogAAAAASUVORK5CYII=" name="Image147" align="bottom" width="2" height="20" border="0"/>
+<font face="宋体"><span lang="zh-CN"><span style="letter-spacing: 0.5pt"><font size="3" style="font-size: 12pt"><b>教</b></font></span><span style="letter-spacing: 0.5pt"><font size="3" style="font-size: 12pt"><b>学评价（</b></font></span><span style="letter-spacing: 0.5pt"><font size="3" style="font-size: 12pt">从教学</font></span><font size="3" style="font-size: 12pt">
+					</font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt"><br/>
+</font></font><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQImWNgAAIAAAUAAWJVMogAAAAASUVORK5CYII=" name="Image149" align="bottom" width="1" height="17" border="0"/>
+<font face="宋体"><span lang="zh-CN"><span style="letter-spacing: 0.5pt"><font size="3" style="font-size: 12pt">评价的方</font></span><span style="letter-spacing: 0.5pt"><font size="3" style="font-size: 12pt">式、占比以</font></span><font size="3" style="font-size: 12pt">
+					</font><font size="3" style="font-size: 12pt">及评价指标等方面</font><font size="3" style="font-size: 12pt"><b>）</b></font></span></font></p>
+				</td>
+				<td colspan="3" width="622" valign="top" style="border: 1px solid #000000; padding: 0.03in 0.07in"><p class="western" align="left">
+					<font face="宋体"><span lang="zh-CN"><font color="#ff0000"><font size="3" style="font-size: 12pt">按左边要求写出评价内容，</font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">300</font></font><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">字左右</font></span></font></font></p>
+				</td>
+			</tr>
+		</table>
+	</center>
+</div>
+<div id="Section2" dir="ltr"><p class="western" align="center" style="line-height: 0.01in; margin-top: 0in; margin-bottom: 0in">
+	<br/>
+
+	</p>
+</div>
+<div id="Section3" dir="ltr"><p class="western" align="center" style="line-height: 98%; margin-top: 0in; margin-bottom: 0in">
+	<br/>
+
+	</p>
+	<p class="western" align="center" style="line-height: 100%; orphans: 2; widows: 2; margin-bottom: 0in">
+	<br/>
+
+	</p>
+	<p class="western" align="center" style="line-height: 100%; margin-bottom: 0.07in; page-break-before: always">
+	<font face="宋体"><span lang="zh-CN"><font face="黑体"><font size="3" style="font-size: 12pt">学时详细教案</font></font></span></font></p>
+	<div class="lesson-sheet-join">
+	<table width="716" cellpadding="0" cellspacing="0">
+		<col width="89"/>
+		<col width="200"/>
+		<col width="165"/>
+		<col width="46"/>
+		<col width="215"/>
+		<tr>
+			<td width="89" height="36" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>课题</b></font></font></span></font></p>
+			</td>
+			<td colspan="2" width="364" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center" style="margin-top: 0in; margin-bottom: 0in">
+				<br/>
+
+				</p>
+				<p class="western" align="center" style="margin-left: 0.28in"><font color="#00b0f0"><font face="仿宋"><font size="3" style="font-size: 12pt">AI</font></font><font face="宋体"><span lang="zh-CN"><font face="仿宋"><font size="3" style="font-size: 12pt">领域基本概念与历史沿革</font></font></span></font></font></p>
+			</td>
+			<td width="46" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>课次</b></font></font></span></font></p>
+			</td>
+			<td width="215" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font color="#00b0f0"><font size="3" style="font-size: 12pt">1</font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="37" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>上课地点</b></font></font></span></font></p>
+			</td>
+			<td width="200" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font color="#00b0f0"><font face="Arial, sans-serif"><font size="3" style="font-size: 12pt">11-1-202</font></font></font></p>
+			</td>
+			<td width="165" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>授课班级</b></font></font></span></font></p>
+			</td>
+			<td colspan="2" width="261" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center" style="margin-bottom: 0in">
+				<font color="#00b0f0"><font face="宋体, serif"><font size="3" style="font-size: 12pt">24</font></font><font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt">级计算机应用技术</font></font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">(</font></font><font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt">三年制</font></font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">)</font></font></font></p>
+				<p class="western" align="center"><font color="#00b0f0"><font face="宋体, serif"><font size="3" style="font-size: 12pt">1</font></font><font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt">班、</font></font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">2</font></font><font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt">班</font></font></span></font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="37" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>授课学时</b></font></font></span></font></p>
+			</td>
+			<td width="200" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font color="#00b0f0"><font size="3" style="font-size: 12pt">2</font></font></p>
+			</td>
+			<td width="165" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>授课类型</b></font></font></span></font></p>
+			</td>
+			<td colspan="2" width="261" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font color="#00b0f0"><font size="3" style="font-size: 12pt">理实一体</font></font></span></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="121" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left" style="margin-bottom: 0in">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>教学内容分</b></font></font></span></font></p>
+				<p class="western" align="left"><font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>析</b></font></font></span></font></p>
+			</td>
+			<td colspan="4" width="625" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left">
+				<font face="宋体"><span lang="zh-CN"><font color="#ff0000"><font size="3" style="font-size: 12pt">根据课题和目录生成内容，</font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">300</font></font><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt">字左右</font></span></font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="295" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>学习目标</b></font></font><font face="宋体"><font size="3" style="font-size: 12pt">（知识、技能、素质</font></font><font size="3" style="font-size: 12pt">、</font><font face="宋体"><font size="3" style="font-size: 12pt">思政）</font></font></span></font></p>
+			</td>
+			<td colspan="4" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="orphans: 2; widows: 2">
+				<font face="宋体"><font size="3" style="font-size: 12pt"><span lang="zh-CN"><font color="#ff0000">根据教学内容分析写出</span></font></font><font size="3" style="font-size: 12pt"><font face="宋体, serif">4</font></font><font face="宋体"><font size="3" style="font-size: 12pt"><span lang="zh-CN">个目标，每个写</span></font></font><font size="3" style="font-size: 12pt"><font face="宋体, serif">1</font></font><font face="宋体"><font size="3" style="font-size: 12pt"><span lang="zh-CN">句话。</span></font></font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="48" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>教学重点</b></font></font></span></font></p>
+			</td>
+			<td colspan="4" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="orphans: 2; widows: 2">
+				<font face="宋体"><font size="3" style="font-size: 12pt"><span lang="zh-CN"><font color="#ff0000"><font face="宋体">从知识目标提取重点</font></font></span></font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="53" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>教学难点</b></font></font></span></font></p>
+			</td>
+			<td colspan="4" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="orphans: 2; widows: 2">
+				<font face="宋体"><font size="3" style="font-size: 12pt"><span lang="zh-CN"><font color="#ff0000"><font face="宋体">从技能目标提取难点</font></font></span></font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="81" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>教学手段</b></font></font></span></font></p>
+			</td>
+			<td colspan="4" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="orphans: 2; widows: 2">
+				<font face="宋体"><font size="3" style="font-size: 12pt"><span lang="zh-CN"><font color="#ff0000"><font face="宋体">根据教学内容分析生成</font></font></span></font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="149" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left" style="margin-bottom: 0in">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>课程思政</b></font></font></span></font></p>
+				<p class="western" align="left"><font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>（</b></font></font><font face="宋体"><font size="3" style="font-size: 12pt">思政元素的挖掘与结合方式</font></font><font face="宋体"><font size="3" style="font-size: 12pt"><b>）</b></font></font></span></font></p>
+			</td>
+			<td colspan="4" width="625" style="border: 1px solid #000000; padding: 0in"><p class="western">
+				<font face="宋体"><span lang="zh-CN"><font color="#ff0000"><font size="3" style="font-size: 12pt">结合素质目标和思政目标生成</font></font></span></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="65" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>教具资料</b></font></font></span></font></p>
+			</td>
+			<td colspan="4" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="orphans: 2; widows: 2">
+				<font face="宋体"><font size="3" style="font-size: 12pt"><span lang="zh-CN"><font color="#ff0000">根据教学手段生成</font></span></font></font></p>
+			</td>
+		</tr>
+	</table>
+	<table width="716" cellpadding="0" cellspacing="0">
+		<col width="89"/>
+		<col width="332"/>
+		<col width="141"/>
+		<col width="153"/>
+		<tr>
+			<td colspan="4" width="714" height="36" valign="top" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center" style="margin-bottom: 0in">
+				<br/>
+
+				</p>
+				<p class="western" align="center"><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>教学过程</b></font></span></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="37" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>环节时长</b></font></span></font></p>
+			</td>
+			<td width="332" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>教师活动</b></font></span></font></p>
+			</td>
+			<td width="141" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>学生活动</b></font></span></font></p>
+			</td>
+			<td width="153" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>设计意图</b></font></span></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="511" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font color="#ff0000"><font size="3" style="font-size: 12pt">将教师活动各部分时长放到对应的位置</font></font></span></font></p>
+			</td>
+			<td width="332" style="border-top: 1px solid #000000; border-bottom: none; border-left: 1px solid #000000; border-right: 1px solid #000000; padding: 0in"><p align="left" style="margin-top: 0.01in">
+				<font face="微软雅黑"><font size="2" style="font-size: 9pt"><span lang="zh-CN"><font color="#ff0000"><font face="宋体"><font size="3" style="font-size: 12pt">根据前面生成本次课程教师活动（包括课程导入、课程内容讲解、随堂练习、课程内容讲解、随堂练习、课堂小结、课后作业布置。根据活动合理分配时间，总时长</font></font></span></font></font><font size="2" style="font-size: 9pt"><font face="宋体"><font size="3" style="font-size: 12pt">90</font></font></font><font face="微软雅黑"><font size="2" style="font-size: 9pt"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt">分钟）</font></font></span></font></font></font></p>
+			</td>
+			<td width="141" style="border-top: 1px solid #000000; border-bottom: none; border-left: 1px solid #000000; border-right: 1px solid #000000; padding: 0in"><p align="left" style="margin-top: 0.01in">
+				<font face="微软雅黑"><font size="2" style="font-size: 9pt"><span lang="zh-CN"><font color="#ff0000"><font face="宋体"><font size="3" style="font-size: 12pt">根据教师活动生成学生活动</font></font></font></span></font></font></p>
+			</td>
+			<td width="153" style="border-top: 1px solid #000000; border-bottom: none; border-left: 1px solid #000000; border-right: 1px solid #000000; padding: 0in"><p align="center" style="margin-top: 0.01in">
+				<font face="微软雅黑"><font size="2" style="font-size: 9pt"><span lang="zh-CN"><font color="#ff0000"><font face="宋体"><font size="3" style="font-size: 12pt">根据教师和学生活动生成对应设计意图</font></font></font></span></font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="94" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center" style="margin-bottom: 0in">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>本次课教学</b></font></span></font></p>
+				<p class="western" align="center" style="margin-top: 0in"><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>评价</b></font></span></font></p>
+			</td>
+			<td colspan="3" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="margin-top: 0.01in">
+				<font face="微软雅黑"><font size="2" style="font-size: 9pt"><span lang="zh-CN"><font color="#ff0000"><font face="微软雅黑 Light"><font size="3" style="font-size: 12pt">根据教学过程生成教学评价（</font></font></span></font></font><font size="2" style="font-size: 9pt"><font face="微软雅黑 Light, sans-serif"><font size="3" style="font-size: 12pt">2</font></font></font><font face="微软雅黑"><font size="2" style="font-size: 9pt"><span lang="zh-CN"><font face="微软雅黑 Light"><font size="3" style="font-size: 12pt">句话）</font></font></span></font></font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="94" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center" style="margin-bottom: 0in">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>本次课教学</b></font></span></font></p>
+				<p class="western" align="center" style="margin-top: 0in"><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>效果</b></font></span></font></p>
+			</td>
+			<td colspan="3" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="margin-top: 0.01in">
+				<font face="微软雅黑"><font size="2" style="font-size: 9pt"><span lang="zh-CN"><font color="#ff0000"><font face="微软雅黑 Light"><font size="3" style="font-size: 12pt">根据教学过程生成教学效果说明（</font></font></span></font></font><font size="2" style="font-size: 9pt"><font face="微软雅黑 Light, sans-serif"><font size="3" style="font-size: 12pt">2</font></font></font><font face="微软雅黑"><font size="2" style="font-size: 9pt"><span lang="zh-CN"><font face="微软雅黑 Light"><font size="3" style="font-size: 12pt">句话）</font></font></span></font></font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="94" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>存在问题</b></font></span></font></p>
+			</td>
+			<td colspan="3" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="margin-top: 0.01in">
+				<font face="微软雅黑"><font size="2" style="font-size: 9pt"><span lang="zh-CN"><font color="#ff0000"><font face="微软雅黑 Light"><font size="3" style="font-size: 12pt">根据教学过程生成存在问题内容（</font></font></span></font></font><font size="2" style="font-size: 9pt"><font face="微软雅黑 Light, sans-serif"><font size="3" style="font-size: 12pt">1</font></font></font><font face="微软雅黑"><font size="2" style="font-size: 9pt"><span lang="zh-CN"><font face="微软雅黑 Light"><font size="3" style="font-size: 12pt">句话）</font></font></span></font></font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="93" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>改进措施</b></font></span></font></p>
+			</td>
+			<td colspan="3" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="margin-top: 0.01in">
+				<font face="微软雅黑"><font size="2" style="font-size: 9pt"><span lang="zh-CN"><font color="#ff0000"><font face="微软雅黑 Light"><font size="3" style="font-size: 12pt">根据存在问题生成改进措施（</font></font></span></font></font><font size="2" style="font-size: 9pt"><font face="微软雅黑 Light, sans-serif"><font size="3" style="font-size: 12pt">2</font></font></font><font face="微软雅黑"><font size="2" style="font-size: 9pt"><span lang="zh-CN"><font face="微软雅黑 Light"><font size="3" style="font-size: 12pt">句话）</font></font></span></font></font></font></p>
+			</td>
+		</tr>
+	</table>
+	</div>
+	<p class="western" align="left" style="line-height: 103%; margin-top: 0.01in; margin-bottom: 0in">
+	<br/>
+
+	</p>
+</div>
+<div id="Section5" dir="ltr"><p class="western" align="center" style="line-height: 98%; margin-top: 0in; margin-bottom: 0in">
+	<br/>
+
+	</p>
+</div>
+<div id="Section6" dir="ltr"><p class="western" align="center" style="line-height: 100%; orphans: 2; widows: 2; margin-bottom: 0in">
+	<br/>
+
+	</p>
+	<p class="western" align="center" style="line-height: 100%; margin-bottom: 0.07in; page-break-before: always">
+	<font face="宋体"><span lang="zh-CN"><font face="黑体"><font size="3" style="font-size: 12pt">学时详细教案</font></font></span></font></p>
+	<div class="lesson-sheet-join">
+	<table width="716" cellpadding="0" cellspacing="0">
+		<col width="89"/>
+		<col width="200"/>
+		<col width="165"/>
+		<col width="46"/>
+		<col width="215"/>
+		<tr>
+			<td width="89" height="36" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>课题</b></font></font></span></font></p>
+			</td>
+			<td colspan="2" width="364" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center" style="margin-top: 0in; margin-bottom: 0in">
+				<br/>
+
+				</p>
+				<p class="western" align="center" style="margin-left: 0.28in"><font color="#00b0f0"><font face="仿宋"><font size="3" style="font-size: 12pt">AI</font></font><font face="宋体"><span lang="zh-CN"><font face="仿宋"><font size="3" style="font-size: 12pt">领域基本概念与历史沿革</font></font></span></font></font></p>
+			</td>
+			<td width="46" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>课次</b></font></font></span></font></p>
+			</td>
+			<td width="215" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font color="#00b0f0"><font size="3" style="font-size: 12pt">2</font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="37" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>上课地点</b></font></font></span></font></p>
+			</td>
+			<td width="200" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font color="#00b0f0"><font face="Arial, sans-serif"><font size="3" style="font-size: 12pt">11-1-202</font></font></font></p>
+			</td>
+			<td width="165" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>授课班级</b></font></font></span></font></p>
+			</td>
+			<td colspan="2" width="261" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center" style="margin-bottom: 0in">
+				<font color="#00b0f0"><font face="宋体, serif"><font size="3" style="font-size: 12pt">24</font></font><font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt">级计算机应用技术</font></font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">(</font></font><font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt">三年制</font></font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">)</font></font></font></p>
+				<p class="western" align="center"><font color="#00b0f0"><font face="宋体, serif"><font size="3" style="font-size: 12pt">1</font></font><font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt">班、</font></font></span></font><font face="宋体, serif"><font size="3" style="font-size: 12pt">2</font></font><font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt">班</font></font></span></font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="37" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>授课学时</b></font></font></span></font></p>
+			</td>
+			<td width="200" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font color="#00b0f0"><font size="3" style="font-size: 12pt">2</font></font></p>
+			</td>
+			<td width="165" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>授课类型</b></font></font></span></font></p>
+			</td>
+			<td colspan="2" width="261" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font color="#00b0f0"><font size="3" style="font-size: 12pt">理实一体</font></font></span></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="121" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left" style="margin-bottom: 0in">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>教学内容分</b></font></font></span></font></p>
+				<p class="western" align="left"><font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>析</b></font></font></span></font></p>
+			</td>
+			<td colspan="4" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="295" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>学习目标</b></font></font><font face="宋体"><font size="3" style="font-size: 12pt">（知识、技能、素质</font></font><font size="3" style="font-size: 12pt">、</font><font face="宋体"><font size="3" style="font-size: 12pt">思政）</font></font></span></font></p>
+			</td>
+			<td colspan="4" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="orphans: 2; widows: 2; text-indent: 0.33in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="48" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>教学重点</b></font></font></span></font></p>
+			</td>
+			<td colspan="4" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="orphans: 2; widows: 2; text-indent: 0.33in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="53" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>教学难点</b></font></font></span></font></p>
+			</td>
+			<td colspan="4" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="orphans: 2; widows: 2; text-indent: 0.33in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="81" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>教学手段</b></font></font></span></font></p>
+			</td>
+			<td colspan="4" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="orphans: 2; widows: 2; text-indent: 0.33in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="149" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left" style="margin-bottom: 0in">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>课程思政</b></font></font></span></font></p>
+				<p class="western" align="left"><font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>（</b></font></font><font face="宋体"><font size="3" style="font-size: 12pt">思政元素的挖掘与结合方式</font></font><font face="宋体"><font size="3" style="font-size: 12pt"><b>）</b></font></font></span></font></p>
+			</td>
+			<td colspan="4" width="625" style="border: 1px solid #000000; padding: 0in"><p class="western">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="65" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left">
+				<font face="宋体"><span lang="zh-CN"><font face="宋体"><font size="3" style="font-size: 12pt"><b>教具资料</b></font></font></span></font></p>
+			</td>
+			<td colspan="4" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="orphans: 2; widows: 2; text-indent: 0.33in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+	</table>
+	<table width="716" cellpadding="0" cellspacing="0">
+		<col width="89"/>
+		<col width="332"/>
+		<col width="141"/>
+		<col width="153"/>
+		<tr>
+			<td colspan="4" width="714" height="36" valign="top" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center" style="margin-bottom: 0in">
+				<br/>
+
+				</p>
+				<p class="western" align="center"><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>教学过程</b></font></span></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="37" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>环节时长</b></font></span></font></p>
+			</td>
+			<td width="332" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>教师活动</b></font></span></font></p>
+			</td>
+			<td width="141" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>学生活动</b></font></span></font></p>
+			</td>
+			<td width="153" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>设计意图</b></font></span></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="127" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体, serif"><font size="3" style="font-size: 12pt">5min</font></font></p>
+			</td>
+			<td width="332" style="border: 1px solid #000000; padding: 0in"><p align="left" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+			<td width="141" style="border: 1px solid #000000; padding: 0in"><p align="left" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+			<td width="153" style="border: 1px solid #000000; padding: 0in"><p align="center" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="127" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体, serif"><font size="3" style="font-size: 12pt">20min</font></font></p>
+			</td>
+			<td width="332" style="border: 1px solid #000000; padding: 0in"><p class="western" align="left" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+			<td width="141" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center" style="margin-right: 0.03in; margin-top: 0in">
+				<br/>
+
+				</p>
+			</td>
+			<td width="153" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center" style="margin-right: 0.08in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="127" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体, serif"><font size="3" style="font-size: 12pt">10min</font></font></p>
+			</td>
+			<td width="332" style="border: 1px solid #000000; padding: 0in"><p align="left" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+			<td width="141" style="border: 1px solid #000000; padding: 0in"><p align="center" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+			<td width="153" style="border: 1px solid #000000; padding: 0in"><p align="center" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="127" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体, serif"><font size="3" style="font-size: 12pt">10min</font></font></p>
+			</td>
+			<td width="332" style="border: 1px solid #000000; padding: 0in"><p align="left" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+			<td width="141" style="border: 1px solid #000000; padding: 0in"><p align="center" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+			<td width="153" style="border: 1px solid #000000; padding: 0in"><p align="center" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="127" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体, serif"><font size="3" style="font-size: 12pt">10min</font></font></p>
+			</td>
+			<td width="332" style="border: 1px solid #000000; padding: 0in"><p align="left" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+			<td width="141" style="border: 1px solid #000000; padding: 0in"><p align="center" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+			<td width="153" style="border: 1px solid #000000; padding: 0in"><p align="center" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="127" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体, serif"><font size="3" style="font-size: 12pt">20min</font></font></p>
+			</td>
+			<td width="332" style="border: 1px solid #000000; padding: 0in"><p align="left" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+			<td width="141" style="border: 1px solid #000000; padding: 0in"><p align="center" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+			<td width="153" style="border: 1px solid #000000; padding: 0in"><p align="center" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="127" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体, serif"><font size="3" style="font-size: 12pt">15min</font></font></p>
+			</td>
+			<td width="332" style="border: 1px solid #000000; padding: 0in"><p align="left" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+			<td width="141" style="border: 1px solid #000000; padding: 0in"><p align="center" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+			<td width="153" style="border: 1px solid #000000; padding: 0in"><p align="center" style="margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="94" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center" style="margin-bottom: 0in">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>本次课教学</b></font></span></font></p>
+				<p class="western" align="center" style="margin-top: 0in"><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>评价</b></font></span></font></p>
+			</td>
+			<td colspan="3" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="text-indent: 0.33in; margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="94" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center" style="margin-bottom: 0in">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>本次课教学</b></font></span></font></p>
+				<p class="western" align="center" style="margin-top: 0in"><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>效果</b></font></span></font></p>
+			</td>
+			<td colspan="3" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="text-indent: 0.33in; margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="94" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>存在问题</b></font></span></font></p>
+			</td>
+			<td colspan="3" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="text-indent: 0.33in; margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td width="89" height="93" style="border: 1px solid #000000; padding: 0in"><p class="western" align="center">
+				<font face="宋体"><span lang="zh-CN"><font size="3" style="font-size: 12pt"><b>改进措施</b></font></span></font></p>
+			</td>
+			<td colspan="3" width="625" style="border: 1px solid #000000; padding: 0in"><p align="left" style="text-indent: 0.33in; margin-top: 0.01in">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+	</table>
+	</div>
+	<p class="western" align="left" style="line-height: 100%; orphans: 2; widows: 2; margin-bottom: 0in">
+	<br/>
+
+	</p>
+</div>
+</body>
+</html></script>
+
+  <script>
+    const BUILT_IN_TEMPLATE_HTML = document.getElementById("builtInTemplate").textContent;
+    const courseNameInput = document.getElementById("courseName");
+    const examTypeInput = document.getElementById("examType");
+    const courseCodeInput = document.getElementById("courseCode");
+    const classNameInput = document.getElementById("className");
+    const previewFrame = document.getElementById("previewFrame");
+    const previewSection = document.querySelector(".preview");
+    const panelRoot = document.querySelector(".panel");
+    const statusBox = document.getElementById("status");
+    const btnGenerate = document.getElementById("btnGenerate");
+    const btnDownload = document.getElementById("btnDownload");
+    const lessonList = document.getElementById("lessonList");
+    const btnAddLesson = document.getElementById("btnAddLesson");
+    const stepPill1 = document.getElementById("stepPill1");
+    const stepPill2 = document.getElementById("stepPill2");
+    const step1 = document.getElementById("step1");
+    const step2 = document.getElementById("step2");
+    const btnToStep2 = document.getElementById("btnToStep2");
+    const btnBackToStep1 = document.getElementById("btnBackToStep1");
+    const btnRunAI = document.getElementById("btnRunAI");
+    const btnDownloadStep2 = document.getElementById("btnDownloadStep2");
+    const modelNameInput = document.getElementById("modelName");
+    const cfg = window.LESSON_PLAN_CFG || {};
+    const DEFAULT_API_URL = cfg.chatApiUrl || "/api/lesson_plan_chat.php";
+    const DEFAULT_MODELS_URL = cfg.modelsApiUrl || "/api/lesson_plan_models.php";
+    const DEFAULT_API_KEY = "";
+    const LP_STATE_KEY = "campus_lesson_plan_v1";
+    let lpCurrentStep = 1;
+    let lpAiRunning = false;
+
+    function notifyParent(payload) {
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(
+            Object.assign({ source: "campus-lesson-plan", type: "status" }, payload),
+            window.location.origin
+          );
+        }
+      } catch (e) {}
+    }
+
+    function collectUiState() {
+      return {
+        courseName: courseNameInput ? courseNameInput.value : "",
+        examType: examTypeInput ? examTypeInput.value : "",
+        courseCode: courseCodeInput ? courseCodeInput.value : "",
+        className: classNameInput ? classNameInput.value : "",
+        aiGenScope: aiGenScope ? aiGenScope.value : "full",
+        lessons: lessons.slice(),
+        generatedHtml: generatedHtml || "",
+        step: lpCurrentStep,
+        log: logBox ? logBox.textContent : "",
+        progress: progressFill ? parseInt(String(progressFill.style.width || "0"), 10) || 0 : 0,
+        modelValue: modelNameInput ? modelNameInput.value : "",
+      };
+    }
+
+    function saveLessonState() {
+      try {
+        sessionStorage.setItem(LP_STATE_KEY, JSON.stringify(collectUiState()));
+      } catch (e) {}
+    }
+
+    function restoreLessonState() {
+      try {
+        const raw = sessionStorage.getItem(LP_STATE_KEY);
+        if (!raw) return;
+        const s = JSON.parse(raw);
+        if (!s || typeof s !== "object") return;
+        if (courseNameInput && s.courseName != null) courseNameInput.value = s.courseName;
+        if (examTypeInput && s.examType) examTypeInput.value = s.examType;
+        if (courseCodeInput && s.courseCode != null) courseCodeInput.value = s.courseCode;
+        if (classNameInput && s.className != null) classNameInput.value = s.className;
+        if (aiGenScope && s.aiGenScope) aiGenScope.value = s.aiGenScope;
+        if (Array.isArray(s.lessons) && s.lessons.length) {
+          lessons = s.lessons.slice();
+          renderLessonList();
+        }
+        if (s.generatedHtml) {
+          generatedHtml = s.generatedHtml;
+          setPreviewHtml(generatedHtml);
+        }
+        if (s.step === 2) setStep(2, true);
+        if (logBox && s.log) logBox.textContent = s.log;
+        if (typeof s.progress === "number") setProgress(s.progress);
+        if (modelNameInput && s.modelValue) {
+          window.setTimeout(function () {
+            modelNameInput.value = s.modelValue;
+          }, 300);
+        }
+      } catch (e) {}
+    }
+
+    window.addEventListener("message", function (e) {
+      if (e.origin !== window.location.origin) return;
+      const data = e.data;
+      if (!data || data.source !== "campus-chat") return;
+      if (data.type === "lesson-plan:theme") {
+        document.documentElement.setAttribute("data-theme", data.theme === "light" ? "light" : "dark");
+      }
+    });
+    const progressFill = document.getElementById("progressFill");
+    const progressText = document.getElementById("progressText");
+    const logBox = document.getElementById("logBox");
+    const btnAbortAI = document.getElementById("btnAbortAI");
+    const aiGenScope = document.getElementById("aiGenScope");
+    const dirImportOverlay = document.getElementById("dirImportOverlay");
+    const dirPasteArea = document.getElementById("dirPasteArea");
+    const dirImportStatus = document.getElementById("dirImportStatus");
+    const btnOpenDirImport = document.getElementById("btnOpenDirImport");
+    const btnDirApply = document.getElementById("btnDirApply");
+    const btnDirCancel = document.getElementById("btnDirCancel");
+    const btnDlDirTpl = document.getElementById("btnDlDirTpl");
+    const DIR_TEMPLATE_REL = cfg.dirTemplateUrl || "../assets/lesson-plan/dir-template.txt";
+
+    let aiAbortController = null;
+    let streamReader = null;
+    let dirParseTimer = null;
+    let generatedHtml = "";
+    let lessons = [
+      {
+        topic: "AI领域基本概念与历史沿革",
+        place: "11-1-202",
+        className: "24级计算机应用技术(三年制)1班、2班",
+        hours: "2",
+        type: "理实一体"
+      }
+    ];
+
+    function normalizeText(text) {
+      return (text || "").replace(/\s+/g, "");
+    }
+
+    function getCellByLabel(documentObj, labelText) {
+      const tds = Array.from(documentObj.querySelectorAll("td"));
+      for (const td of tds) {
+        const txt = normalizeText(td.textContent);
+        if (txt.includes(normalizeText(labelText))) {
+          const row = td.closest("tr");
+          if (!row) {
+            continue;
+          }
+          const cells = Array.from(row.children).filter((el) => el.tagName === "TD");
+          const index = cells.indexOf(td);
+          if (index >= 0 && index < cells.length - 1) {
+            return cells[index + 1];
+          }
+        }
+      }
+      return null;
+    }
+
+    function aiFieldToString(value) {
+      if (value == null) {
+        return "";
+      }
+      if (typeof value === "string") {
+        return value;
+      }
+      if (typeof value === "number" || typeof value === "boolean") {
+        return String(value);
+      }
+      if (Array.isArray(value)) {
+        return value
+          .map((item) => aiFieldToString(item))
+          .filter((line) => String(line).trim().length > 0)
+          .join("\n");
+      }
+      if (typeof value === "object") {
+        try {
+          return JSON.stringify(value, null, 2);
+        } catch (e) {
+          return String(value);
+        }
+      }
+      return String(value);
+    }
+
+    function setCellText(cell, value) {
+      if (!cell) {
+        return;
+      }
+      const s = aiFieldToString(value);
+      cell.innerHTML = '<p class="western" align="center"><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size:12pt;color:#00b0f0;">' +
+        s.replace(/</g, "&lt;").replace(/>/g, "&gt;") +
+        "</font></span></font></p>";
+    }
+
+    function setLongTextCell(cell, value) {
+      if (!cell) {
+        return;
+      }
+      const safeText = aiFieldToString(value).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const lines = safeText.split("\n").filter((line) => line.trim().length > 0);
+      if (lines.length === 0) {
+        cell.innerHTML = '<p class="western" align="left"><br/></p>';
+        return;
+      }
+      cell.innerHTML = lines
+        .map((line) => '<p class="western" align="left"><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size:12pt;color:#111827;">' + line + "</font></span></font></p>")
+        .join("");
+    }
+
+    function setStageDurationCell(cell, stage, duration) {
+      if (!cell) {
+        return;
+      }
+      const safeStage = aiFieldToString(stage).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const safeDuration = aiFieldToString(duration).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      cell.innerHTML =
+        '<p class="western" align="center"><font face="宋体"><span lang="zh-CN"><font size="3" style="font-size:12pt;color:#111827;">' +
+        (safeStage || "教学环节") +
+        "</font></span></font></p>" +
+        '<p class="western" align="center"><font face="宋体, serif"><font size="3" style="font-size:12pt;color:#111827;">' +
+        (safeDuration || "10min") +
+        "</font></font></p>";
+    }
+
+    function processBlockIsMeaningful(block) {
+      if (!block || typeof block !== "object") {
+        return false;
+      }
+      const pick = (v) => (typeof v === "string" ? v.trim() : v == null ? "" : String(v).trim());
+      return !!(
+        pick(block.stage) ||
+        pick(block.duration) ||
+        pick(block.teacherActivity) ||
+        pick(block.studentActivity) ||
+        pick(block.intent)
+      );
+    }
+
+    function cellLooksBareForAggregate(cell) {
+      if (!cell) {
+        return true;
+      }
+      return (cell.textContent || "").replace(/\u00a0/g, " ").trim().length === 0;
+    }
+
+    function processDetailRowColsBare(row) {
+      const tds = row.querySelectorAll("td");
+      if (!tds || tds.length < 4) {
+        return true;
+      }
+      return (
+        cellLooksBareForAggregate(tds[1]) &&
+        cellLooksBareForAggregate(tds[2]) &&
+        cellLooksBareForAggregate(tds[3])
+      );
+    }
+
+    /** 将一段长文拆成 bucketCount 份，用于教学过程表中「有 duration 但三列仍空」时的兜底。 */
+    function splitTextForEvenBuckets(text, bucketCount) {
+      const t = aiFieldToString(text).trim();
+      if (!t || bucketCount < 1) {
+        return Array.from({ length: Math.max(0, bucketCount) }, () => "");
+      }
+      let parts = t
+        .split(/(?<=[。！？!?;；])\s+/)
+        .map((x) => x.trim())
+        .filter(Boolean);
+      if (parts.length < 2) {
+        parts = t.split(/\r?\n+/).map((x) => x.trim()).filter(Boolean);
+      }
+      if (!parts.length) {
+        parts = [t];
+      }
+      const out = Array.from({ length: bucketCount }, () => "");
+      if (parts.length >= bucketCount) {
+        parts.forEach((s, idx) => {
+          const b = idx % bucketCount;
+          out[b] = out[b] ? out[b] + " " + s : s;
+        });
+        return out;
+      }
+      if (t.length > 200 && bucketCount > 1) {
+        const chunk = Math.ceil(t.length / bucketCount);
+        for (let i = 0; i < bucketCount; i += 1) {
+          out[i] = t.slice(i * chunk, (i + 1) * chunk).trim();
+        }
+        return out;
+      }
+      parts.forEach((s, idx) => {
+        const b = idx % bucketCount;
+        out[b] = out[b] ? out[b] + " " + s : s;
+      });
+      return out;
+    }
+
+    function fillEmptyProcessDetailRowsFromAggregates(processTable, lessonData) {
+      if (!processTable || !lessonData) {
+        return;
+      }
+      const rows = Array.from(processTable.querySelectorAll("tr"));
+      if (rows.length < 10) {
+        return;
+      }
+      const detailRows = rows.slice(2, 9);
+      const bareIdx = [];
+      for (let i = 0; i < detailRows.length; i += 1) {
+        if (processDetailRowColsBare(detailRows[i])) {
+          bareIdx.push(i);
+        }
+      }
+      if (bareIdx.length === 0) {
+        return;
+      }
+      const ta = aiFieldToString(lessonData.teacherActivities).trim();
+      const sa = aiFieldToString(lessonData.studentActivities).trim();
+      const di = aiFieldToString(lessonData.designIntent).trim();
+      if (!ta && !sa && !di) {
+        return;
+      }
+      const n = bareIdx.length;
+      const bucketsT = splitTextForEvenBuckets(ta, n);
+      const bucketsS = splitTextForEvenBuckets(sa, n);
+      const bucketsD = splitTextForEvenBuckets(di, n);
+      bareIdx.forEach((detailIndex, j) => {
+        const row = detailRows[detailIndex];
+        const tds = row.querySelectorAll("td");
+        if (!tds || tds.length < 4) {
+          return;
+        }
+        let t = bucketsT[j] || "";
+        let s = bucketsS[j] || "";
+        let d = bucketsD[j] || "";
+        if (!t && !s && !d && n === 1) {
+          t = ta;
+          s = sa;
+          d = di;
+        }
+        if (t) {
+          setLongTextCell(tds[1], t);
+        }
+        if (s) {
+          setLongTextCell(tds[2], s);
+        }
+        if (d) {
+          setLongTextCell(tds[3], d);
+        }
+      });
+    }
+
+    function resetProcessDetailRowDefaults(row, durationLabel) {
+      const tds = row.querySelectorAll("td");
+      if (!tds || tds.length < 4) {
+        return;
+      }
+      const d = (durationLabel || "10min").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      tds[0].innerHTML =
+        '<p class="western" align="center"><font face="宋体, serif"><font size="3" style="font-size: 12pt;color:#111827;">' +
+        d +
+        "</font></font></p>";
+      setLongTextCell(tds[1], "");
+      setLongTextCell(tds[2], "");
+      setLongTextCell(tds[3], "");
+    }
+
+    function normalizeProcessTableToP2(processTable) {
+      if (!processTable) {
+        return;
+      }
+      const rows = Array.from(processTable.querySelectorAll("tr"));
+      // P1: 标题行 + 表头行 + 合并大行 + 评价/效果/问题/改进 共 7 行
+      if (rows.length !== 7) {
+        return;
+      }
+      const mergedRow = rows[2];
+      const evalRow = rows[3];
+      if (!mergedRow || !evalRow) {
+        return;
+      }
+
+      const durations = ["5min", "20min", "10min", "10min", "10min", "20min", "15min"];
+      const heights = [127, 127, 127, 127, 127, 127, 127];
+
+      mergedRow.remove();
+      const evalParent = evalRow.parentNode;
+      for (let i = 0; i < durations.length; i += 1) {
+        const tr = processTable.ownerDocument.createElement("tr");
+        tr.innerHTML =
+          '<td width="89" height="' + heights[i] + '" style="border: 1px solid #000000; padding: 0in">' +
+            '<p class="western" align="center"><font face="宋体, serif"><font size="3" style="font-size: 12pt">' + durations[i] + "</font></font></p>" +
+          "</td>" +
+          '<td width="332" style="border: 1px solid #000000; padding: 0in"><p align="left" style="margin-top: 0.01in"><br/></p></td>' +
+          '<td width="141" style="border: 1px solid #000000; padding: 0in"><p align="center" style="margin-top: 0.01in"><br/></p></td>' +
+          '<td width="153" style="border: 1px solid #000000; padding: 0in"><p align="center" style="margin-top: 0.01in"><br/></p></td>';
+        evalParent.insertBefore(tr, evalRow);
+      }
+    }
+
+    function ensureTableGridLines(doc) {
+      if (!doc || !doc.head) {
+        return;
+      }
+      const styleId = "grid-line-lock-style";
+      let styleEl = doc.getElementById(styleId);
+      if (!styleEl) {
+        styleEl = doc.createElement("style");
+        styleEl.id = styleId;
+        doc.head.appendChild(styleEl);
+      }
+      styleEl.textContent = `
+        table { border-collapse: collapse !important; }
+        table td, table th { border: 1px solid #000 !important; }
+      `;
+    }
+
+    function appendLog(text) {
+      if (!logBox) {
+        return;
+      }
+      logBox.textContent += (text || "") + "\n";
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function runConfettiCelebrate() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+      }
+      let root = document.getElementById("confettiRoot");
+      if (!root) {
+        root = document.createElement("div");
+        root.id = "confettiRoot";
+        root.setAttribute("aria-hidden", "true");
+        document.body.appendChild(root);
+      }
+      root.className = "confetti-root";
+      root.innerHTML = "";
+      const colors = ["#cc785c", "#a9583e", "#5db8a6", "#e8a55a", "#5db872", "#c64545", "#6c6a64", "#252320"];
+      const count = 52;
+      for (let i = 0; i < count; i += 1) {
+        const p = document.createElement("span");
+        p.className = "confetti-piece";
+        p.style.left = Math.random() * 100 + "%";
+        p.style.animationDuration = 2.4 + Math.random() * 1.9 + "s";
+        p.style.animationDelay = Math.random() * 0.4 + "s";
+        p.style.background = colors[i % colors.length];
+        p.style.setProperty("--confetti-drift", Math.round((Math.random() - 0.5) * 120) + "px");
+        root.appendChild(p);
+      }
+      window.setTimeout(() => {
+        if (root) {
+          root.innerHTML = "";
+        }
+      }, 4800);
+    }
+
+    function setProgress(percent) {
+      const value = Math.max(0, Math.min(100, percent));
+      progressFill.style.width = value + "%";
+      if (progressText) {
+        progressText.textContent = "";
+      }
+      if (lpAiRunning) {
+        notifyParent({ running: true, done: false, progress: value, message: "AI 生成中 " + value + "%" });
+      }
+      saveLessonState();
+    }
+
+    function setExamType(documentObj, value) {
+      const examCell = getCellByLabel(documentObj, "考试方式");
+      if (!examCell) {
+        return;
+      }
+      const isExam = value === "考试";
+      examCell.innerHTML =
+        '<p class="western" align="center"><font face="宋体"><span lang="zh-CN">' +
+        '考试<font color="#00b0f0">' + (isExam ? "☑" : "□") + "</font> " +
+        '考查<font color="#00b0f0">' + (isExam ? "□" : "☑") + "</font>" +
+        "</span></font></p>";
+    }
+
+    function escapeHtml(text) {
+      return (text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function renderLessonList() {
+      lessonList.innerHTML = lessons
+        .map((item, index) => {
+          const lessonNo = index + 1;
+          return `
+            <div class="lesson-item" data-index="${index}">
+              <div class="lesson-item-head">
+                <strong>第 ${lessonNo} 次课</strong>
+                <button type="button" class="danger btnRemoveLesson" ${lessons.length <= 1 ? "disabled" : ""}>删除</button>
+              </div>
+              <div class="field">
+                <label>课题</label>
+                <input class="lesson-topic" value="${escapeHtml(item.topic)}" />
+              </div>
+              <div class="field">
+                <label>上课地点</label>
+                <input class="lesson-place" value="${escapeHtml(item.place)}" />
+              </div>
+              <div class="field">
+                <label>授课班级</label>
+                <input class="lesson-class" value="${escapeHtml(item.className)}" />
+              </div>
+              <div class="field">
+                <label>授课学时</label>
+                <input class="lesson-hours" value="${escapeHtml(item.hours)}" />
+              </div>
+              <div class="field">
+                <label>授课类型</label>
+                <input class="lesson-type" value="${escapeHtml(item.type)}" />
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+      lessonList.querySelectorAll(".lesson-item").forEach((el, i) => {
+        el.classList.remove("motion-lesson-in");
+        void el.offsetWidth;
+        el.style.animationDelay = i * 0.04 + "s";
+        el.classList.add("motion-lesson-in");
+      });
+    }
+
+    function collectLessonsFromUI() {
+      const blocks = Array.from(lessonList.querySelectorAll(".lesson-item"));
+      lessons = blocks.map((block) => ({
+        topic: block.querySelector(".lesson-topic").value.trim(),
+        place: block.querySelector(".lesson-place").value.trim(),
+        className: block.querySelector(".lesson-class").value.trim(),
+        hours: block.querySelector(".lesson-hours").value.trim(),
+        type: block.querySelector(".lesson-type").value.trim()
+      }));
+    }
+
+    function setAllClassNameCells(documentObj, className) {
+      const tds = Array.from(documentObj.querySelectorAll("td"));
+      for (const td of tds) {
+        const txt = normalizeText(td.textContent);
+        if (txt.includes(normalizeText("授课班级"))) {
+          const row = td.closest("tr");
+          if (!row) {
+            continue;
+          }
+          const cells = Array.from(row.children).filter((el) => el.tagName === "TD");
+          const index = cells.indexOf(td);
+          if (index >= 0 && index < cells.length - 1) {
+            setCellText(cells[index + 1], className);
+          }
+        }
+      }
+    }
+
+    function findDetailedSectionPairs(documentObj) {
+      const sections = Array.from(documentObj.querySelectorAll("body > div"));
+      const pairs = [];
+      for (let i = 0; i < sections.length; i += 1) {
+        const current = sections[i];
+        if (!current) {
+          continue;
+        }
+        if (!normalizeText(current.textContent).includes(normalizeText("学时详细教案"))) {
+          continue;
+        }
+        const join = current.querySelector(":scope > .lesson-sheet-join");
+        if (join) {
+          const tbs = join.querySelectorAll(":scope > table");
+          if (tbs.length >= 2 && normalizeText(tbs[1].textContent).includes(normalizeText("教学过程"))) {
+            pairs.push({ lessonDiv: current, processDiv: join });
+            continue;
+          }
+        }
+        const next = sections[i + 1];
+        if (next && normalizeText(next.textContent).includes(normalizeText("教学过程"))) {
+          pairs.push({ lessonDiv: current, processDiv: next });
+        }
+      }
+      return pairs;
+    }
+
+    function getLessonAndProcessTables(pair) {
+      const join = pair.lessonDiv.querySelector(":scope > .lesson-sheet-join");
+      if (join && pair.processDiv === join) {
+        const tbs = join.querySelectorAll(":scope > table");
+        if (tbs.length >= 2) {
+          return { lessonTable: tbs[0], processTable: tbs[1] };
+        }
+      }
+      return {
+        lessonTable: pair.lessonDiv.querySelector("table"),
+        processTable: pair.processDiv.querySelector("table")
+      };
+    }
+
+    function getCellByLabelInTable(table, labelText) {
+      const tds = Array.from(table.querySelectorAll("td"));
+      for (const td of tds) {
+        const txt = normalizeText(td.textContent);
+        if (txt.includes(normalizeText(labelText))) {
+          const row = td.closest("tr");
+          if (!row) {
+            continue;
+          }
+          const cells = Array.from(row.children).filter((el) => el.tagName === "TD");
+          const index = cells.indexOf(td);
+          if (index >= 0 && index < cells.length - 1) {
+            return cells[index + 1];
+          }
+        }
+      }
+      return null;
+    }
+
+    function ensureDetailedPairs(documentObj, targetCount) {
+      let pairs = findDetailedSectionPairs(documentObj);
+      while (pairs.length < targetCount && pairs.length > 0) {
+        const last = pairs[pairs.length - 1];
+        const merged = last.lessonDiv.contains(last.processDiv);
+        const lessonClone = last.lessonDiv.cloneNode(true);
+        if (merged) {
+          lessonClone.id = "Section" + (100 + pairs.length * 2);
+          last.lessonDiv.parentNode.insertBefore(lessonClone, last.lessonDiv.nextSibling);
+        } else {
+          const processClone = last.processDiv.cloneNode(true);
+          lessonClone.id = "Section" + (100 + pairs.length * 2);
+          processClone.id = "Section" + (101 + pairs.length * 2);
+          last.processDiv.after(lessonClone, processClone);
+        }
+        pairs = findDetailedSectionPairs(documentObj);
+      }
+      while (pairs.length > targetCount && pairs.length > 0) {
+        const last = pairs[pairs.length - 1];
+        last.lessonDiv.remove();
+        if (!last.lessonDiv.contains(last.processDiv)) {
+          last.processDiv.remove();
+        }
+        pairs = findDetailedSectionPairs(documentObj);
+      }
+      return pairs;
+    }
+
+    function setDetailedLessonPair(pair, lessonNo, lessonData) {
+      const { lessonTable } = getLessonAndProcessTables(pair);
+      if (!lessonTable) {
+        return;
+      }
+      setCellText(getCellByLabelInTable(lessonTable, "课题"), lessonData.topic);
+      setCellText(getCellByLabelInTable(lessonTable, "课次"), String(lessonNo));
+      setCellText(getCellByLabelInTable(lessonTable, "上课地点"), lessonData.place);
+      setCellText(getCellByLabelInTable(lessonTable, "授课班级"), lessonData.className);
+      setCellText(getCellByLabelInTable(lessonTable, "授课学时"), lessonData.hours);
+      setCellText(getCellByLabelInTable(lessonTable, "授课类型"), lessonData.type || "理实一体");
+    }
+
+    async function loadModelsFromServer() {
+      function setModelSelectError(reason, serverHint) {
+        const msg = [reason, serverHint].filter(Boolean).join(" ");
+        if (msg && logBox) {
+          logBox.textContent += "[模型列表] " + msg + "\n";
+          logBox.scrollTop = logBox.scrollHeight;
+        } else if (msg) {
+          console.error(msg);
+        }
+        if (!modelNameInput) {
+          return;
+        }
+        modelNameInput.innerHTML = "<option value=\"\">—</option>";
+      }
+      try {
+        if (!modelNameInput) {
+          return;
+        }
+        const r = await fetch(DEFAULT_MODELS_URL, { credentials: "same-origin" });
+        let j = null;
+        try {
+          j = await r.json();
+        } catch (e) {
+          setModelSelectError("接口返回非 JSON（HTTP " + r.status + "）。", "");
+          return;
+        }
+        if (!j || j.ok !== true || !Array.isArray(j.models)) {
+          setModelSelectError("接口数据异常。", j && j.hint ? String(j.hint) : "");
+          return;
+        }
+        if (j.models.length === 0) {
+          setModelSelectError("", j.hint ? String(j.hint) : "");
+          return;
+        }
+        const usable = j.models.filter((m) => m && String(m.model_api_name || "").trim() !== "");
+        if (usable.length === 0) {
+          setModelSelectError("model_api_name 均为空。", j.hint ? String(j.hint) : "");
+          return;
+        }
+        modelNameInput.innerHTML = "";
+        usable.forEach((m) => {
+          const o = document.createElement("option");
+          o.value = String(m.model_api_name).trim();
+          o.textContent = (m.display_name || o.value) + (m.provider_name ? " — " + m.provider_name : "");
+          o.dataset.llmModelId = String(m.llm_model_id || 0);
+          o.dataset.providerId = String(m.provider_id || 0);
+          if (m.max_tokens != null && m.max_tokens !== "") {
+            o.dataset.maxTokens = String(m.max_tokens);
+          }
+          modelNameInput.appendChild(o);
+        });
+      } catch (e) {
+        setModelSelectError("请求失败：" + (e && e.message ? e.message : String(e)), "");
+      }
+    }
+
+    function extractBalancedJsonObject(text) {
+      const start = text.indexOf("{");
+      if (start === -1) {
+        return null;
+      }
+      let depth = 0;
+      let inStr = false;
+      let esc = false;
+      for (let i = start; i < text.length; i += 1) {
+        const c = text[i];
+        if (inStr) {
+          if (esc) {
+            esc = false;
+          } else if (c === "\\") {
+            esc = true;
+          } else if (c === "\"") {
+            inStr = false;
+          }
+          continue;
+        }
+        if (c === "\"") {
+          inStr = true;
+          continue;
+        }
+        if (c === "{") {
+          depth += 1;
+        } else if (c === "}") {
+          depth -= 1;
+          if (depth === 0) {
+            return text.slice(start, i + 1);
+          }
+        }
+      }
+      return null;
+    }
+
+    function sanitizeAiJsonNoise(source) {
+      if (!source || typeof source !== "string") {
+        return source;
+      }
+      return source
+        .replace(/[\u201c\u201d\u2018\u2019]/g, (ch) => {
+          if (ch === "\u201c" || ch === "\u201d") {
+            return '"';
+          }
+          return "'";
+        })
+        .split(/\r?\n/)
+        .filter((line) => {
+          const t = line.trim();
+          if (t === "..." || t === "...," || t === "...;" || t === "...}") {
+            return false;
+          }
+          if (/^\.{3,}\s*(?:[,;]|\})?\s*$/.test(t)) {
+            return false;
+          }
+          if (/^[…．]+\s*(?:[,;]|\})?\s*$/.test(t)) {
+            return false;
+          }
+          return true;
+        })
+        .join("\n")
+        .replace(/,\s*([}\]])/g, "$1");
+    }
+
+    function repairTruncatedJsonObject(text) {
+      const start = text.indexOf("{");
+      if (start === -1) {
+        return null;
+      }
+      let slice = text.slice(start);
+      slice = sanitizeAiJsonNoise(slice);
+      const stack = [];
+      let inStr = false;
+      let esc = false;
+      for (let i = 0; i < slice.length; i += 1) {
+        const c = slice[i];
+        if (inStr) {
+          if (esc) {
+            esc = false;
+          } else if (c === "\\") {
+            esc = true;
+          } else if (c === '"') {
+            inStr = false;
+          }
+          continue;
+        }
+        if (c === '"') {
+          inStr = true;
+          continue;
+        }
+        if (c === "{" || c === "[") {
+          stack.push(c);
+        } else if (c === "}") {
+          if (stack[stack.length - 1] === "{") {
+            stack.pop();
+          }
+        } else if (c === "]") {
+          if (stack[stack.length - 1] === "[") {
+            stack.pop();
+          }
+        }
+      }
+      if (inStr) {
+        slice += '"';
+      }
+      slice = slice.replace(/,\s*$/, "");
+      while (stack.length) {
+        const open = stack.pop();
+        slice += open === "{" ? "}" : "]";
+      }
+      return slice;
+    }
+
+    function extractSseDeltaPieces(json) {
+      if (!json || typeof json !== "object") {
+        return { content: "", reasoning: "" };
+      }
+      if (json.message && typeof json.message === "object") {
+        return {
+          content: typeof json.message.content === "string" ? json.message.content : "",
+          reasoning:
+            typeof json.message.reasoning_content === "string"
+              ? json.message.reasoning_content
+              : typeof json.message.reasoning === "string"
+                ? json.message.reasoning
+                : "",
+        };
+      }
+      const c0 = json.choices && json.choices[0];
+      if (!c0) {
+        return { content: "", reasoning: "" };
+      }
+      const d = c0.delta || {};
+      const msg = c0.message || {};
+      const content =
+        (typeof d.content === "string" ? d.content : "") ||
+        (typeof msg.content === "string" ? msg.content : "") ||
+        (typeof c0.text === "string" ? c0.text : "");
+      const reasoning =
+        (typeof d.reasoning_content === "string" ? d.reasoning_content : "") ||
+        (typeof d.reasoning === "string" ? d.reasoning : "") ||
+        (typeof d.thinking === "string" ? d.thinking : "") ||
+        (typeof msg.reasoning_content === "string" ? msg.reasoning_content : "") ||
+        (typeof msg.reasoning === "string" ? msg.reasoning : "");
+      return { content: content || "", reasoning: reasoning || "" };
+    }
+
+    function extractSseAssistantText(json) {
+      const parts = extractSseDeltaPieces(json);
+      return parts.content || parts.reasoning || "";
+    }
+
+    function mergeStreamAssistantText(content, reasoning) {
+      const c = String(content || "").trim();
+      const r = String(reasoning || "").trim();
+      if (c && c.indexOf("{") >= 0) {
+        return c;
+      }
+      if (r && r.indexOf("{") >= 0) {
+        return r;
+      }
+      if (c && r) {
+        return c + "\n" + r;
+      }
+      return c || r;
+    }
+
+    function supportsJsonResponseFormat(modelId) {
+      const m = String(modelId || "").toLowerCase();
+      if (/deepseek-r1|reasoner|qwq|r1\b|thinking/.test(m)) {
+        return false;
+      }
+      return /deepseek|gpt-4|gpt-3|qwen|glm|moonshot|kimi/.test(m);
+    }
+
+    function extractSseFinishReason(json) {
+      const c0 = json && json.choices && json.choices[0];
+      if (!c0) {
+        return "";
+      }
+      return String(c0.finish_reason || (c0.delta && c0.delta.finish_reason) || "");
+    }
+
+    function maxTokensForModel(model) {
+      const m = String(model || "").toLowerCase();
+      if (m.indexOf("deepseek-r1") !== -1) {
+        return 131072;
+      }
+      if (m.indexOf("qwen") !== -1) {
+        return 98304;
+      }
+      return 131072;
+    }
+
+    function parseAIJson(content) {
+      let raw = (content || "").trim();
+      if (!raw) {
+        throw new Error(
+          "AI 未返回内容（流式正文为空）。若使用 DeepSeek 推理/Reasoner 模型，请换 deepseek-chat，或查看日志是否 0 片段。"
+        );
+      }
+      const thinkOpen = String.fromCharCode(60, 116, 104, 105, 110, 107, 62);
+      raw = raw.replace(new RegExp(thinkOpen + "[\\s\\S]*?<\\/think>", "gi"), "").trim();
+      raw = raw.replace(/<think>[\s\S]*?<\/redacted_thinking>/gi, "").trim();
+      raw = raw.replace(/<redacted_reasoning>[\s\S]*?<\/redacted_reasoning>/gi, "").trim();
+      const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/i);
+      const fenced = fenceMatch ? fenceMatch[1].trim() : "";
+      let jsonText = sanitizeAiJsonNoise(fenced && fenced.indexOf("{") >= 0 ? fenced : raw);
+      const tryParse = (s) => {
+        try {
+          return JSON.parse(s);
+        } catch (e) {
+          return null;
+        }
+      };
+      let parsed = tryParse(jsonText);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+      if (!parsed) {
+        parsed = tryParse(sanitizeAiJsonNoise(jsonText));
+      }
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+      if (parsed) {
+        return parsed;
+      }
+      const repaired = repairTruncatedJsonObject(jsonText);
+      if (repaired) {
+        parsed = tryParse(repaired);
+        if (!parsed) {
+          parsed = tryParse(sanitizeAiJsonNoise(repaired));
+        }
+        if (parsed) {
+          return parsed;
+        }
+      }
+      const balanced = extractBalancedJsonObject(jsonText);
+      if (balanced) {
+        parsed = tryParse(balanced);
+        if (!parsed) {
+          parsed = tryParse(sanitizeAiJsonNoise(balanced));
+        }
+        if (parsed) {
+          return parsed;
+        }
+        const errHint = balanced.length > 800 ? balanced.slice(0, 800) + "..." : balanced;
+        throw new Error("JSON.parse 失败（括号平衡截取）。片段：" + errHint);
+      }
+      const start = jsonText.indexOf("{");
+      const arrStart = jsonText.indexOf("[");
+      if (start === -1 && arrStart !== -1) {
+        const arrEnd = jsonText.lastIndexOf("]");
+        if (arrEnd > arrStart) {
+          parsed = tryParse(jsonText.slice(arrStart, arrEnd + 1));
+          if (Array.isArray(parsed)) {
+            return parsed;
+          }
+        }
+      }
+      const end = jsonText.lastIndexOf("}");
+      if (start !== -1 && end > start) {
+        const slice = jsonText.slice(start, end + 1);
+        parsed = tryParse(slice);
+        if (!parsed) {
+          parsed = tryParse(sanitizeAiJsonNoise(slice));
+        }
+        if (parsed) {
+          return parsed;
+        }
+        const errHint = slice.length > 800 ? slice.slice(0, 800) + "..." : slice;
+        throw new Error("JSON.parse 失败（已截取首段对象）。片段：" + errHint);
+      }
+      const hint = jsonText.length > 600 ? jsonText.slice(0, 600) + "..." : jsonText;
+      throw new Error(
+        "未找到可解析的 JSON 对象。原始开头：" +
+          (hint || "（空）") +
+          "。若日志显示 0 片段，多为模型把输出放在 reasoning 通道或上游未返回 delta。"
+      );
+    }
+
+    async function fetchOpenAiChatOnce(apiUrl, apiKey, reqBody, signal) {
+      const body = Object.assign({}, reqBody, { stream: false });
+      delete body.stream;
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + apiKey,
+        },
+        body: JSON.stringify(body),
+        signal: signal,
+      });
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error("非流式重试失败：" + response.status + " " + errText.slice(0, 400));
+      }
+      const json = await response.json();
+      const c0 = json.choices && json.choices[0];
+      if (!c0) {
+        return "";
+      }
+      const msg = c0.message || {};
+      return mergeStreamAssistantText(
+        typeof msg.content === "string" ? msg.content : "",
+        typeof msg.reasoning_content === "string"
+          ? msg.reasoning_content
+          : typeof msg.reasoning === "string"
+            ? msg.reasoning
+            : ""
+      );
+    }
+
+    function setGlobalByAI(doc, globalData) {
+      if (!globalData) {
+        return;
+      }
+      setLongTextCell(getCellByLabel(doc, "整体教学设计策略"), globalData.overallStrategy || "");
+      setLongTextCell(getCellByLabel(doc, "教学内容分析"), globalData.contentAnalysis || "");
+      setLongTextCell(getCellByLabel(doc, "学情分析"), globalData.studentAnalysis || "");
+      setLongTextCell(getCellByLabel(doc, "教学目标"), globalData.learningObjectives || "");
+      setLongTextCell(getCellByLabel(doc, "教学重点与难点分析"), globalData.keyAndDifficultPoints || "");
+      setLongTextCell(getCellByLabel(doc, "教学方法和手段"), globalData.methodsAndMeans || "");
+      setLongTextCell(getCellByLabel(doc, "教学评价"), globalData.evaluationPlan || "");
+    }
+
+    function setLessonRedCellsByAI(pair, lessonData) {
+      if (!pair || !lessonData) {
+        return;
+      }
+      const { lessonTable, processTable } = getLessonAndProcessTables(pair);
+      if (!lessonTable || !processTable) {
+        return;
+      }
+      normalizeProcessTableToP2(processTable);
+
+      setLongTextCell(getCellByLabelInTable(lessonTable, "教学内容分"), lessonData.contentAnalysis || "");
+      setLongTextCell(getCellByLabelInTable(lessonTable, "学习目标"), lessonData.objectives || "");
+      setLongTextCell(getCellByLabelInTable(lessonTable, "教学重点"), lessonData.keyPoints || "");
+      setLongTextCell(getCellByLabelInTable(lessonTable, "教学难点"), lessonData.difficultPoints || "");
+      setLongTextCell(getCellByLabelInTable(lessonTable, "教学手段"), lessonData.teachingMeans || "");
+      setLongTextCell(getCellByLabelInTable(lessonTable, "课程思政"), lessonData.ideologicalIntegration || "");
+      setLongTextCell(getCellByLabelInTable(lessonTable, "教具资料"), lessonData.materials || "");
+
+      const processRows = Array.from(processTable.querySelectorAll("tr"));
+      const processBlocks = Array.isArray(lessonData.processBlocks) ? lessonData.processBlocks : [];
+      const defaultDurations = ["5min", "20min", "10min", "10min", "10min", "20min", "15min"];
+
+      // 详细教学过程表（5min/20min...多行）优先按环节逐行填充
+      if (processRows.length >= 10 && processBlocks.length > 0) {
+        const detailRows = processRows.slice(2, 9);
+        for (let i = 0; i < detailRows.length; i += 1) {
+          const row = detailRows[i];
+          const block = i < processBlocks.length ? processBlocks[i] : null;
+          const tds = row.querySelectorAll("td");
+          if (!tds || tds.length < 4) {
+            continue;
+          }
+          if (!processBlockIsMeaningful(block)) {
+            resetProcessDetailRowDefaults(row, defaultDurations[i] || "10min");
+            continue;
+          }
+          const dur = aiFieldToString(block.duration).trim() || defaultDurations[i] || "10min";
+          setStageDurationCell(tds[0], block.stage, dur);
+          setLongTextCell(tds[1], block.teacherActivity || "");
+          setLongTextCell(tds[2], block.studentActivity || "");
+          setLongTextCell(tds[3], block.intent || "");
+        }
+      }
+
+      const teacherProcessRow = processRows[2];
+      if (teacherProcessRow) {
+        const tds = teacherProcessRow.querySelectorAll("td");
+        if (tds[1] && processBlocks.length === 0) {
+          setLongTextCell(tds[1], lessonData.teacherActivities || "");
+        }
+        if (tds[2] && processBlocks.length === 0) {
+          setLongTextCell(tds[2], lessonData.studentActivities || "");
+        }
+        if (tds[3] && processBlocks.length === 0) {
+          setLongTextCell(tds[3], lessonData.designIntent || "");
+        }
+      }
+      fillEmptyProcessDetailRowsFromAggregates(processTable, lessonData);
+      setLongTextCell(getCellByLabelInTable(processTable, "本次课教学评价"), lessonData.teachingEvaluation || "");
+      setLongTextCell(getCellByLabelInTable(processTable, "本次课教学效果"), lessonData.teachingEffect || "");
+      setLongTextCell(getCellByLabelInTable(processTable, "存在问题"), lessonData.problems || "");
+      setLongTextCell(getCellByLabelInTable(processTable, "改进措施"), lessonData.improvements || "");
+    }
+
+    async function loadTemplateHtml() {
+      if (!BUILT_IN_TEMPLATE_HTML || !BUILT_IN_TEMPLATE_HTML.trim()) {
+        throw new Error("内置模板为空，请检查生成器文件。");
+      }
+      return BUILT_IN_TEMPLATE_HTML;
+    }
+
+    function surgePreview() {
+      if (!previewSection) {
+        return;
+      }
+      previewSection.classList.remove("motion-iframe-surge");
+      void previewSection.offsetWidth;
+      previewSection.classList.add("motion-iframe-surge");
+      setTimeout(() => previewSection.classList.remove("motion-iframe-surge"), 520);
+    }
+
+    function openPreviewMotion() {
+      if (!previewSection) {
+        return;
+      }
+      previewSection.classList.remove("motion-preview-open");
+      void previewSection.offsetWidth;
+      previewSection.classList.add("motion-preview-open");
+      setTimeout(() => previewSection.classList.remove("motion-preview-open"), 680);
+    }
+
+    function openPanelMotion() {
+      if (!panelRoot) {
+        return;
+      }
+      panelRoot.classList.remove("motion-panel-open");
+      void panelRoot.offsetWidth;
+      panelRoot.classList.add("motion-panel-open");
+      setTimeout(() => panelRoot.classList.remove("motion-panel-open"), 540);
+    }
+
+    async function generate() {
+      try {
+        if (statusBox) {
+          statusBox.textContent = "";
+        }
+        openPanelMotion();
+        collectLessonsFromUI();
+        const htmlText = await loadTemplateHtml();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, "text/html");
+        ensureTableGridLines(doc);
+
+        setCellText(getCellByLabel(doc, "课程名称"), courseNameInput.value.trim());
+        setCellText(getCellByLabel(doc, "课程代码"), courseCodeInput.value.trim());
+        setExamType(doc, examTypeInput.value);
+        setAllClassNameCells(doc, classNameInput.value.trim());
+
+        const pairs = ensureDetailedPairs(doc, lessons.length);
+        for (let i = 0; i < lessons.length; i += 1) {
+          if (!pairs[i]) {
+            continue;
+          }
+          const { processTable } = getLessonAndProcessTables(pairs[i]);
+          if (processTable) {
+            normalizeProcessTableToP2(processTable);
+          }
+          const finalLesson = {
+            topic: lessons[i].topic || ("课题" + (i + 1)),
+            place: lessons[i].place || "",
+            className: lessons[i].className || classNameInput.value.trim(),
+            hours: lessons[i].hours || "",
+            type: lessons[i].type || "理实一体"
+          };
+          setDetailedLessonPair(pairs[i], i + 1, finalLesson);
+        }
+
+        generatedHtml = "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
+        setPreviewHtml(generatedHtml);
+        surgePreview();
+        openPreviewMotion();
+        if (statusBox) {
+          statusBox.textContent = "";
+        }
+      } catch (error) {
+        if (statusBox) {
+          statusBox.textContent = "";
+        }
+        console.error(error);
+      }
+    }
+
+    function injectReadableDocStyles(doc, mode) {
+      if (!doc || !doc.documentElement) {
+        return;
+      }
+      let styleEl = doc.getElementById("lp-readable-style");
+      if (!styleEl) {
+        styleEl = doc.createElement("style");
+        styleEl.id = "lp-readable-style";
+        (doc.head || doc.documentElement).appendChild(styleEl);
+      }
+      if (mode === "export") {
+        styleEl.textContent =
+          "body{background:#ffffff!important;color:#000000!important;}" +
+          "table,td,th,p,font,span,div{color:#000000!important;background-color:transparent!important;}" +
+          "font[color]{color:#000000!important;}";
+      } else {
+        styleEl.textContent = "body{background:#ffffff!important;color:#000000!important;}";
+      }
+      doc.querySelectorAll("script").forEach(function (n) {
+        n.remove();
+      });
+      doc.querySelectorAll('link[rel="stylesheet"]').forEach(function (n) {
+        n.remove();
+      });
+    }
+
+    function htmlForPreview(html) {
+      if (!html) {
+        return "";
+      }
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      injectReadableDocStyles(doc, "preview");
+      return "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
+    }
+
+    function htmlForDocExport(html) {
+      if (!html) {
+        return "";
+      }
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      injectReadableDocStyles(doc, "export");
+      const bodyInner = doc.body ? doc.body.innerHTML : html;
+      return (
+        '<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+        'xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
+        '<head><meta charset="utf-8"><style>' +
+        "body{background:#fff;color:#000;}table,td,th,p,font,span,div{color:#000!important;}" +
+        "</style></head><body>" +
+        bodyInner +
+        "</body></html>"
+      );
+    }
+
+    function setPreviewHtml(html) {
+      generatedHtml = html || "";
+      if (previewFrame) {
+        previewFrame.srcdoc = htmlForPreview(generatedHtml);
+      }
+      saveLessonState();
+    }
+
+    function exportDoc() {
+      if (!generatedHtml || !String(generatedHtml).trim()) {
+        if (statusBox) {
+          statusBox.textContent = "请先「生成预览」或完成 AI 生成后再导出";
+        }
+        return;
+      }
+      const parsed = new DOMParser().parseFromString(generatedHtml, "text/html");
+      const plainLen = (parsed.body ? parsed.body.textContent : generatedHtml).replace(/\s+/g, "").length;
+      if (plainLen < 20) {
+        if (statusBox) {
+          statusBox.textContent = "教案内容为空，请先完成 AI 生成或检查回填是否成功";
+        }
+        return;
+      }
+      const wrapped = htmlForDocExport(generatedHtml);
+      const hx =
+        typeof htmlDocx !== "undefined"
+          ? htmlDocx
+          : typeof window !== "undefined" && window.htmlDocx
+            ? window.htmlDocx
+            : null;
+      try {
+        if (typeof saveAs !== "undefined" && hx && typeof hx.asBlob === "function") {
+          saveAs(hx.asBlob(wrapped), "教案.docx");
+          openPreviewMotion();
+          openPanelMotion();
+          return;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      try {
+        const d = new DOMParser().parseFromString(wrapped, "text/html");
+        const inner = d.body ? d.body.innerHTML : wrapped;
+        const docHtml =
+          "\ufeff<html xmlns:w=\"urn:schemas-microsoft-com:office:word\"><head><meta charset=\"utf-8\">" +
+          "<style>body,table,td,p,font{color:#000;background:#fff;}</style></head><body>" +
+          inner +
+          "</body></html>";
+        const blob = new Blob([docHtml], { type: "application/msword" });
+        if (typeof saveAs !== "undefined") {
+          saveAs(blob, "教案.doc");
+        } else {
+          const u = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = u;
+          a.download = "教案.doc";
+          a.click();
+          URL.revokeObjectURL(u);
+        }
+        openPreviewMotion();
+        openPanelMotion();
+      } catch (e2) {
+        console.error(e2);
+      }
+    }
+
+    function setStep(stepNo, silent) {
+      lpCurrentStep = stepNo;
+      const onStep1 = stepNo === 1;
+      step1.classList.remove("motion-panel-surge");
+      step2.classList.remove("motion-panel-surge");
+      step1.classList.toggle("active", onStep1);
+      step2.classList.toggle("active", !onStep1);
+      stepPill1.classList.toggle("active", onStep1);
+      stepPill2.classList.toggle("active", !onStep1);
+      if (statusBox) {
+        statusBox.textContent = "";
+      }
+      const activeStep = onStep1 ? step1 : step2;
+      void activeStep.offsetWidth;
+      activeStep.classList.add("motion-panel-surge");
+      setTimeout(() => activeStep.classList.remove("motion-panel-surge"), 480);
+      if (!silent) {
+        openPanelMotion();
+        openPreviewMotion();
+      }
+      saveLessonState();
+    }
+
+    function collectPayloadForAI() {
+      collectLessonsFromUI();
+      return {
+        model: modelNameInput.value.trim() || "gemma4:e2b",
+        courseName: courseNameInput.value.trim(),
+        courseCode: courseCodeInput.value.trim(),
+        examType: examTypeInput.value,
+        className: classNameInput.value.trim(),
+        lessons: lessons.map((item, index) => ({
+          lessonNo: index + 1,
+          topic: item.topic,
+          place: item.place,
+          className: item.className,
+          hours: item.hours,
+          type: item.type
+        }))
+      };
+    }
+
+    function coerceAiRoot(parsed) {
+      if (Array.isArray(parsed)) {
+        return { global: {}, lessons: parsed };
+      }
+      if (!parsed || typeof parsed !== "object") {
+        return { global: {}, lessons: [] };
+      }
+      return {
+        global: parsed.global && typeof parsed.global === "object" ? parsed.global : {},
+        lessons: Array.isArray(parsed.lessons) ? parsed.lessons : []
+      };
+    }
+
+    function buildAiSystemPrompt(modelId, lessonsOnlyOutput) {
+      let base =
+        lessonsOnlyOutput
+          ? "你是职业院校教案生成助手。只输出一个 JSON 对象，顶层**仅**含键 \"lessons\"（数组），禁止输出 global 键，禁止 Markdown 围栏，禁止在 JSON 前后输出解释文字。lessons 中每一项必须含 lessonNo（与输入一致）及该课次全部可填字段。禁止用单独成行仅含 … 或 … 的省略代替正文。"
+          : "你是职业院校教案生成助手。只输出一个 JSON 对象（含 global、lessons），禁止 Markdown 围栏，禁止在 JSON 前后输出解释文字。" +
+            "禁止在 JSON 中出现单独成行仅含 ... 或 … 的省略；所有键都必须有合法的双引号字符串值，禁止用省略号代替字段内容。";
+      if (/deepseek/i.test(modelId)) {
+        base +=
+          " deepseek：只把最终 JSON 写在 content 正文里，不要把推理过程混进 JSON；JSON 必须完整闭合。";
+      }
+      if (/deepseek-r1/i.test(modelId)) {
+        base = lessonsOnlyOutput
+          ? "你是职业院校教案生成助手。deepseek-r1：推理从简，最后必须输出且仅输出一个 JSON 对象，顶层**只有** \"lessons\" 数组，不要用 Markdown 围栏；JSON 必须一次闭合。"
+          : "你是职业院校教案生成助手。deepseek-r1 会先做推理：请把推理控制在较短篇幅，最后必须输出且仅输出一个完整、可解析的 JSON 对象（含 global、lessons），不要用 Markdown 围栏；JSON 必须一次闭合，宁可压缩某字段字数也不要截断结构。";
+      }
+      if (/qwen/i.test(modelId)) {
+        base +=
+          " 千问模型特别注意：不要模仿示例里的英文引号占位；processBlocks 里每条必须写完整中文句子，不要写单独一行的省略号。";
+      }
+      return base;
+    }
+
+    function buildFullModeUserPrompt(payload) {
+      const nLess = Array.isArray(payload.lessons) ? payload.lessons.length : 0;
+      return (
+        "请根据输入生成教案模板红字要求对应内容。\n" +
+        "重要：本次输入含 " +
+        nLess +
+        " 个课次，lessons 数组必须输出**恰好** " +
+        nLess +
+        " 个对象；每个对象必须含 lessonNo（与输入中 lessonNo 一致），**禁止**只写第一课或合并多课到一条。\n" +
+        "每课 processBlocks 必须**恰好 7 条**（与模板环节行数一致），每条含 stage、duration、teacherActivity、studentActivity、intent 完整句子；**禁止**只写前几条就结束。\n" +
+        "输出JSON结构如下：\n" +
+        "{\n" +
+        '  "global": {\n' +
+        '    "overallStrategy": "300字左右",\n' +
+        '    "contentAnalysis": "400字左右",\n' +
+        '    "studentAnalysis": "400字左右",\n' +
+        '    "learningObjectives": "按要求组织",\n' +
+        '    "keyAndDifficultPoints": "教学重点与难点",\n' +
+        '    "methodsAndMeans": "300字左右",\n' +
+        '    "evaluationPlan": "300字左右"\n' +
+        "  },\n" +
+        '  "lessons": [\n' +
+        "    {\n" +
+        '      "lessonNo": 1,\n' +
+        '      "contentAnalysis": "300字左右",\n' +
+        '      "objectives": "4个目标，每个1句话",\n' +
+        '      "keyPoints": "教学重点",\n' +
+        '      "difficultPoints": "教学难点",\n' +
+        '      "teachingMeans": "教学手段",\n' +
+        '      "ideologicalIntegration": "课程思政",\n' +
+        '      "materials": "教具资料",\n' +
+        '      "teacherActivities": "教师活动，覆盖90分钟流程",\n' +
+        '      "studentActivities": "对应学生活动",\n' +
+        '      "designIntent": "设计意图",\n' +
+        '      "processBlocks": [\n' +
+        '        {"stage":"课程导入","duration":"5min","teacherActivity":"教师演示与讲解要点","studentActivity":"学生观察与记录","intent":"激发兴趣"},\n' +
+        '        {"stage":"知识讲解","duration":"20min","teacherActivity":"分步讲解核心概念","studentActivity":"跟随练习与提问","intent":"建立认知"},\n' +
+        '        {"stage":"随堂练习","duration":"10min","teacherActivity":"布置练习并巡视","studentActivity":"独立完成练习","intent":"巩固应用"},\n' +
+        '        {"stage":"知识讲解","duration":"10min","teacherActivity":"难点拆解与示范","studentActivity":"小组讨论汇报","intent":"突破难点"},\n' +
+        '        {"stage":"随堂练习","duration":"10min","teacherActivity":"点评与纠错","studentActivity":"订正与互评","intent":"查漏补缺"},\n' +
+        '        {"stage":"课堂小结","duration":"20min","teacherActivity":"梳理知识框架","studentActivity":"口述本课收获","intent":"形成结构"},\n' +
+        '        {"stage":"作业布置","duration":"15min","teacherActivity":"说明作业要求","studentActivity":"记录作业","intent":"延伸学习"}\n' +
+        '      ],\n' +
+        '      "teachingEvaluation": "2句话",\n' +
+        '      "teachingEffect": "2句话",\n' +
+        '      "problems": "1句话",\n' +
+        '      "improvements": "2句话"\n' +
+        "    }\n" +
+        "  ]\n" +
+        "}\n" +
+        "输入数据如下：\n" +
+        JSON.stringify(payload, null, 2)
+      );
+    }
+
+    function buildLessonsOnlyUserPrompt(payload) {
+      const nLess = Array.isArray(payload.lessons) ? payload.lessons.length : 0;
+      return (
+        "本批次**只**填写「学时详细教案」红字区内容（各课次教学内容分、学习目标、重难点、手段、思政、教具、教学过程环节表、评价与改进等）。\n" +
+        "输出：**仅**一个 JSON 对象，顶层**只有**键 \"lessons\"（数组），**禁止**输出 global 键。\n" +
+        "lessons 必须**恰好** " +
+        nLess +
+        " 条；lessonNo 与下列输入逐条一致，**禁止**只输出一条或省略课次。\n" +
+        "每课 processBlocks 必须**恰好 7 条**（与环节表行数一致），每条含 stage、duration、teacherActivity、studentActivity、intent；**禁止**只写前几条；若篇幅紧可略缩短每句但不要删条目。\n" +
+        "单课字段结构与示例：\n" +
+        "{\n" +
+        '  "lessons": [\n' +
+        "    {\n" +
+        '      "lessonNo": 1,\n' +
+        '      "contentAnalysis": "300字左右",\n' +
+        '      "objectives": "4个目标，每个1句话",\n' +
+        '      "keyPoints": "教学重点",\n' +
+        '      "difficultPoints": "教学难点",\n' +
+        '      "teachingMeans": "教学手段",\n' +
+        '      "ideologicalIntegration": "课程思政",\n' +
+        '      "materials": "教具资料",\n' +
+        '      "teacherActivities": "教师活动，覆盖90分钟流程",\n' +
+        '      "studentActivities": "对应学生活动",\n' +
+        '      "designIntent": "设计意图",\n' +
+        '      "processBlocks": [\n' +
+        '        {"stage":"课程导入","duration":"5min","teacherActivity":"…","studentActivity":"…","intent":"…"}\n' +
+        "      ],\n" +
+        '      "teachingEvaluation": "2句话",\n' +
+        '      "teachingEffect": "2句话",\n' +
+        '      "problems": "1句话",\n' +
+        '      "improvements": "2句话"\n' +
+        "    }\n" +
+        "  ]\n" +
+        "}\n" +
+        "输入数据如下：\n" +
+        JSON.stringify(payload, null, 2)
+      );
+    }
+
+    function maxTokensForLessonBatch(model, lessonCount, includeGlobal) {
+      const cap = maxTokensForModel(model);
+      if (includeGlobal) {
+        return cap;
+      }
+      // 第 2 课及以后每课单独请求时不含 global，但 JSON 体量与第 1 课相近；此前用 ~20k 易截断 processBlocks 尾部。
+      const est = 6500 * Math.max(1, lessonCount) + 12000;
+      return Math.min(cap, Math.max(64000, est));
+    }
+
+    function describeHttpNetworkError(err, url) {
+      const raw = String(err && err.message ? err.message : err || "");
+      const name = String(err && err.name ? err.name : "");
+      const blob = (name + " " + raw).toLowerCase();
+      if (/networkerror|failed to fetch|load failed|network error|ecconnreset|econnreset/i.test(blob)) {
+        return (
+          "网络异常：无法连接服务器或流式传输中途断开。请依次排查：① 页面与接口是否同为 HTTPS；② Nginx/反代是否关闭响应缓冲并放宽读超时；③ 教案 AI 接口与模型上游是否正常；④ 本机网络/VPN。请求：" +
+          url
+        );
+      }
+      return raw || name || String(err);
+    }
+
+    async function streamOpenAiChat(apiUrl, apiKey, reqBody, signal, onChunkProgress) {
+      let response;
+      try {
+        response = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + apiKey
+          },
+          body: JSON.stringify(reqBody),
+          signal: signal
+        });
+      } catch (e) {
+        throw new Error(describeHttpNetworkError(e, apiUrl));
+      }
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error("接口返回状态码：" + response.status + "，详情：" + errText);
+      }
+      if (!response.body) {
+        throw new Error("浏览器不支持流式读取，或服务端未返回流。");
+      }
+      const reader = response.body.getReader();
+      streamReader = reader;
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+      let content = "";
+      let reasoning = "";
+      let chunkCount = 0;
+      let finishReason = "";
+      function processSseLine(line) {
+        const t = line.trim();
+        if (!t || !t.startsWith("data:")) {
+          return;
+        }
+        const dataPart = t.slice(5).trim();
+        if (dataPart === "[DONE]") {
+          appendLog("[流] 完成" + (finishReason ? "（" + finishReason + "）" : ""));
+          return;
+        }
+        try {
+          const json = JSON.parse(dataPart);
+          const reason = extractSseFinishReason(json);
+          if (reason) {
+            finishReason = reason;
+          }
+          const pieces = extractSseDeltaPieces(json);
+          if (pieces.content) {
+            content += pieces.content;
+            chunkCount += 1;
+          }
+          if (pieces.reasoning) {
+            reasoning += pieces.reasoning;
+            chunkCount += 1;
+          }
+          if (pieces.content || pieces.reasoning) {
+            if (chunkCount % 8 === 0) {
+              appendLog("[流] 已接收片段 " + chunkCount);
+            }
+            if (typeof onChunkProgress === "function") {
+              onChunkProgress(chunkCount);
+            }
+          }
+        } catch (e) {
+          appendLog("[警告] 非 JSON 流片段，已跳过");
+        }
+      }
+      while (true) {
+        let chunk;
+        try {
+          chunk = await reader.read();
+        } catch (e) {
+          streamReader = null;
+          throw new Error(describeHttpNetworkError(e, apiUrl));
+        }
+        const { value, done } = chunk;
+        if (done) {
+          buffer += decoder.decode();
+          break;
+        }
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split(/\r?\n/);
+        buffer = lines.pop() || "";
+        for (const rawLine of lines) {
+          processSseLine(rawLine);
+        }
+      }
+      if (buffer.trim()) {
+        buffer.split(/\r?\n/).forEach(processSseLine);
+      }
+      streamReader = null;
+      if (finishReason === "length") {
+        appendLog("[警告] 模型输出因 max_tokens 达到上限被截断，请提高后台「教案 max_tokens」或换更大上下文模型。");
+      }
+      const merged = mergeStreamAssistantText(content, reasoning);
+      if (!merged) {
+        appendLog(
+          "[警告] 流式正文为空（content=" +
+            content.length +
+            " 字，reasoning=" +
+            reasoning.length +
+            " 字，片段 " +
+            chunkCount +
+            "）。"
+        );
+      } else if (reasoning && (!content || content.indexOf("{") < 0) && merged.indexOf("{") >= 0) {
+        appendLog("[系统] JSON 来自 reasoning 通道（DeepSeek Reasoner 等模型常见）");
+      }
+      return merged;
+    }
+
+    function pickLessonAiForPair(list, pairIndex, wantNo, totalPairs, singletonLessonNoHint) {
+      if (!Array.isArray(list) || list.length === 0) {
+        return null;
+      }
+      const byNo = list.find((it) => it && Number(it.lessonNo) === wantNo);
+      if (byNo) {
+        return byNo;
+      }
+      if (list.length === 1 && list[0]) {
+        const only = list[0];
+        const m = Number(only.lessonNo);
+        if (Number.isFinite(m) && m > 0) {
+          return m === wantNo ? only : null;
+        }
+        if (singletonLessonNoHint != null && wantNo === singletonLessonNoHint) {
+          return only;
+        }
+        return totalPairs === 1 ? only : null;
+      }
+      const cand = list[pairIndex];
+      if (!cand) {
+        return null;
+      }
+      const rawNo = cand.lessonNo;
+      const n = Number(rawNo);
+      if (rawNo === undefined || rawNo === null || String(rawNo).trim() === "" || !Number.isFinite(n) || n < 1) {
+        return cand;
+      }
+      if (list.length === totalPairs) {
+        return cand;
+      }
+      return null;
+    }
+
+    function applyAiDataToDoc(aiData, applyGlobal, applyLessonNos) {
+      if (!generatedHtml) {
+        return;
+      }
+      const parser = new DOMParser();
+      const sourceHtml = generatedHtml;
+      const doc = parser.parseFromString(sourceHtml, "text/html");
+      ensureTableGridLines(doc);
+      const pairs = ensureDetailedPairs(doc, lessons.length);
+      if (applyGlobal && aiData.global && Object.keys(aiData.global).length > 0) {
+        setGlobalByAI(doc, aiData.global);
+      }
+      const list = aiData.lessons || [];
+      const nPairs = pairs.length;
+      const onlyNos =
+        Array.isArray(applyLessonNos) && applyLessonNos.length > 0
+          ? new Set(applyLessonNos.map((x) => Number(x)).filter((x) => Number.isFinite(x) && x > 0))
+          : null;
+      const singletonHint =
+        list.length === 1 && onlyNos && onlyNos.size === 1 ? [...onlyNos][0] : null;
+      const missingNos = [];
+      for (let i = 0; i < nPairs; i += 1) {
+        const wantNo = i + 1;
+        if (onlyNos && !onlyNos.has(wantNo)) {
+          continue;
+        }
+        const lessonAI = pickLessonAiForPair(list, i, wantNo, nPairs, singletonHint);
+        if (lessonAI) {
+          setLessonRedCellsByAI(pairs[i], lessonAI);
+        } else {
+          missingNos.push(String(wantNo));
+        }
+      }
+      if (missingNos.length > 0) {
+        appendLog(
+          "[警告] 以下课次未回填：" +
+            missingNos.join("、") +
+            "（模型返回 lessons 共 " +
+            list.length +
+            " 条" +
+            (onlyNos ? "，本批次仅应写入课次 " + [...onlyNos].sort((a, b) => a - b).join("、") : "") +
+            "）。可尝试：提高 max_tokens、换模型，或检查该课 JSON 是否被截断。"
+        );
+      }
+      generatedHtml = "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
+      setPreviewHtml(generatedHtml);
+      surgePreview();
+      openPreviewMotion();
+      openPanelMotion();
+    }
+
+    function parseDirectoryPaste(text) {
+      const lines = (text || "")
+        .split(/\r?\n/)
+        .map((ln) => ln.replace(/\u00a0/g, " ").trim());
+      let courseName = "";
+      let examRaw = "";
+      let courseCode = "";
+      let className = "";
+      const labels = new Set(["课程名称", "考试方式", "课程代码", "授课班级"]);
+      for (let i = 0; i < lines.length; i++) {
+        const L = lines[i];
+        if (!labels.has(L)) {
+          continue;
+        }
+        if (i + 1 >= lines.length) {
+          break;
+        }
+        const v = lines[i + 1];
+        if (L === "课程名称") {
+          courseName = v;
+        }
+        if (L === "考试方式") {
+          examRaw = v;
+        }
+        if (L === "课程代码") {
+          courseCode = v;
+        }
+        if (L === "授课班级") {
+          className = v;
+        }
+        i++;
+      }
+      const topics = [];
+      const re3 = /^\d+\.\d+\.\d+\s+.+/;
+      for (let j = 0; j < lines.length; j++) {
+        const L = lines[j];
+        if (re3.test(L)) {
+          topics.push(L);
+        }
+      }
+      if (topics.length === 0) {
+        const re2 = /^\d+\.\d+\s+.+/;
+        for (let j = 0; j < lines.length; j++) {
+          const L = lines[j];
+          if (re2.test(L) && !/^\d+\.\d+\.\d+/.test(L)) {
+            topics.push(L);
+          }
+        }
+      }
+      const maxLessons = 100;
+      return {
+        courseName,
+        examRaw,
+        courseCode,
+        className,
+        topics: topics.slice(0, maxLessons)
+      };
+    }
+
+    function setDirStatus(msg, bad) {
+      if (!dirImportStatus) {
+        return;
+      }
+      dirImportStatus.textContent = msg || "";
+      dirImportStatus.classList.toggle("bad", !!bad);
+    }
+
+    function closeDirImportModal() {
+      if (dirImportOverlay) {
+        dirImportOverlay.setAttribute("hidden", "");
+      }
+    }
+
+    function openDirImportModal() {
+      if (dirImportOverlay) {
+        dirImportOverlay.removeAttribute("hidden");
+      }
+      setDirStatus("", false);
+      if (dirPasteArea) {
+        dirPasteArea.focus();
+      }
+      openPanelMotion();
+    }
+
+    function applyParsedDirectory(parsed) {
+      if (parsed.courseName) {
+        courseNameInput.value = parsed.courseName;
+      }
+      if (parsed.courseCode) {
+        courseCodeInput.value = parsed.courseCode;
+      }
+      if (parsed.className) {
+        classNameInput.value = parsed.className;
+      }
+      if (parsed.examRaw) {
+        if (parsed.examRaw.indexOf("考查") >= 0) {
+          examTypeInput.value = "考查";
+        } else if (parsed.examRaw.indexOf("考试") >= 0) {
+          examTypeInput.value = "考试";
+        }
+      }
+      collectLessonsFromUI();
+      const base = lessons[0] || {
+        place: "",
+        className: classNameInput.value.trim(),
+        hours: "2",
+        type: "理实一体"
+      };
+      if (parsed.topics.length > 0) {
+        lessons = parsed.topics.map((topic) => ({
+          topic: topic,
+          place: base.place || "",
+          className: parsed.className || base.className || classNameInput.value.trim(),
+          hours: base.hours || "2",
+          type: base.type || "理实一体"
+        }));
+        renderLessonList();
+      }
+      generatedHtml = "";
+    }
+
+    function runDirParse(options) {
+      const closeModal = options && options.closeModal;
+      const text = dirPasteArea ? dirPasteArea.value.trim() : "";
+      if (text === "") {
+        setDirStatus("", false);
+        return;
+      }
+      const parsed = parseDirectoryPaste(text);
+      const hasMeta = !!(parsed.courseName || parsed.courseCode || parsed.className || parsed.examRaw);
+      const hasTopics = parsed.topics.length > 0;
+      if (!hasMeta && !hasTopics) {
+        setDirStatus("未识别到「课程名称」或「1.1.1」样式行，请对照批量模板。", true);
+        return;
+      }
+      applyParsedDirectory(parsed);
+      const parts = [];
+      if (parsed.courseName) {
+        parts.push("课程名称已填");
+      }
+      if (hasTopics) {
+        parts.push("课次 " + parsed.topics.length + " 条");
+      }
+      setDirStatus(parts.join("；") || "已更新。", false);
+      openPanelMotion();
+      if (closeModal) {
+        closeDirImportModal();
+      }
+    }
+
+    btnGenerate.addEventListener("click", generate);
+    if (btnOpenDirImport) {
+      btnOpenDirImport.addEventListener("click", openDirImportModal);
+    }
+    if (btnDirCancel) {
+      btnDirCancel.addEventListener("click", closeDirImportModal);
+    }
+    if (btnDirApply) {
+      btnDirApply.addEventListener("click", () => runDirParse({ closeModal: true }));
+    }
+    if (dirPasteArea) {
+      dirPasteArea.addEventListener("input", () => {
+        clearTimeout(dirParseTimer);
+        dirParseTimer = setTimeout(() => runDirParse({ closeModal: false }), 520);
+      });
+      dirPasteArea.addEventListener("paste", () => {
+        clearTimeout(dirParseTimer);
+        dirParseTimer = setTimeout(() => runDirParse({ closeModal: false }), 380);
+      });
+    }
+    if (dirImportOverlay) {
+      dirImportOverlay.addEventListener("click", (e) => {
+        if (e.target === dirImportOverlay) {
+          closeDirImportModal();
+        }
+      });
+    }
+    if (btnDlDirTpl) {
+      btnDlDirTpl.addEventListener("click", () => {
+        const a = document.createElement("a");
+        a.href = new URL(DIR_TEMPLATE_REL, window.location.href).href;
+        a.download = "批量模板.txt";
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      });
+    }
+    btnDownload.addEventListener("click", exportDoc);
+    btnDownloadStep2.addEventListener("click", exportDoc);
+
+    btnAddLesson.addEventListener("click", () => {
+      collectLessonsFromUI();
+      lessons.push({
+        topic: "",
+        place: lessons[lessons.length - 1]?.place || "",
+        className: classNameInput.value.trim() || lessons[lessons.length - 1]?.className || "",
+        hours: lessons[lessons.length - 1]?.hours || "2",
+        type: lessons[lessons.length - 1]?.type || "理实一体"
+      });
+      renderLessonList();
+      openPanelMotion();
+    });
+
+    lessonList.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target.classList.contains("btnRemoveLesson")) {
+        return;
+      }
+      const box = target.closest(".lesson-item");
+      const index = Number(box.dataset.index);
+      collectLessonsFromUI();
+      lessons.splice(index, 1);
+      renderLessonList();
+      openPanelMotion();
+    });
+
+    btnToStep2.addEventListener("click", async () => {
+      if (!generatedHtml) {
+        await generate();
+        if (!generatedHtml) {
+          return;
+        }
+      }
+      setStep(2);
+    });
+
+    btnBackToStep1.addEventListener("click", () => {
+      setStep(1);
+    });
+
+    btnRunAI.addEventListener("click", async () => {
+      const apiUrl = DEFAULT_API_URL;
+      const apiKey = DEFAULT_API_KEY;
+      const opt = modelNameInput.selectedOptions[0];
+      if (!opt || !opt.value) {
+        appendLog("[模型] 请先选择模型（若列表为空请在后台配置或导入 SQL）。");
+        if (statusBox) {
+          statusBox.textContent = "";
+        }
+        return;
+      }
+
+      const scopeOnlyLessons = aiGenScope && aiGenScope.value === "lessonsOnly";
+
+      collectLessonsFromUI();
+      const fullPayload = collectPayloadForAI();
+      fullPayload.model = opt.value;
+      const modelId = fullPayload.model;
+      const lessonTotal = fullPayload.lessons.length;
+      if (lessonTotal < 1) {
+        appendLog("[错误] 没有课次，请先添加课次。");
+        return;
+      }
+
+      const batches = [];
+      for (let start = 0; start < lessonTotal; start += 1) {
+        batches.push({ start, end: start + 1 });
+      }
+
+      streamReader = null;
+      aiAbortController = new AbortController();
+      if (btnAbortAI) {
+        btnAbortAI.style.display = "inline-block";
+      }
+      btnRunAI.disabled = true;
+      lpAiRunning = true;
+      notifyParent({ running: true, done: false, progress: 3, message: "AI 生成已开始，可挂起" });
+      if (statusBox) {
+        statusBox.textContent = "";
+      }
+      if (logBox) {
+        logBox.textContent = "[系统] 开始生成...\n";
+      }
+      appendLog(
+        "[系统] 共 " +
+          lessonTotal +
+          " 次请求（每课次 1 次" +
+          (scopeOnlyLessons ? "" : "，第 1 次含整体教学设计") +
+          "），每课次消耗 1 次对话额度。"
+      );
+      openPanelMotion();
+      setProgress(3);
+
+      const mid = parseInt(opt.dataset.llmModelId || "0", 10);
+      const pid = parseInt(opt.dataset.providerId || "0", 10);
+      const mtStr = opt.dataset.maxTokens;
+
+      try {
+        if (!generatedHtml) {
+          appendLog("[系统] 预生成模板");
+          await generate();
+        }
+        if (!generatedHtml) {
+          throw new Error("模板未生成，无法回填。");
+        }
+
+        let stoppedEarly = false;
+        for (let bi = 0; bi < batches.length; bi += 1) {
+          if (aiAbortController.signal.aborted) {
+            appendLog("[系统] 已中断");
+            stoppedEarly = true;
+            break;
+          }
+          const { start, end } = batches[bi];
+          const sliceLessons = fullPayload.lessons.slice(start, end);
+          const subPayload = {
+            model: fullPayload.model,
+            courseName: fullPayload.courseName,
+            courseCode: fullPayload.courseCode,
+            examType: fullPayload.examType,
+            className: fullPayload.className,
+            lessons: sliceLessons
+          };
+
+          const firstBatch = bi === 0;
+          const lessonsOnlyPrompt = scopeOnlyLessons || (!scopeOnlyLessons && !firstBatch);
+          const includeGlobalThisBatch = !scopeOnlyLessons && firstBatch;
+
+          const systemPrompt = buildAiSystemPrompt(modelId, lessonsOnlyPrompt);
+          const userPrompt = lessonsOnlyPrompt
+            ? buildLessonsOnlyUserPrompt(subPayload)
+            : buildFullModeUserPrompt(subPayload);
+
+          let maxTok = maxTokensForLessonBatch(modelId, sliceLessons.length, includeGlobalThisBatch);
+          if (mtStr) {
+            const mtCap = parseInt(mtStr, 10);
+            if (mtCap > 0) {
+              maxTok = Math.min(maxTok, mtCap);
+            }
+          }
+          maxTok = Math.max(maxTok, includeGlobalThisBatch ? 32768 : 16384);
+
+          appendLog("[系统] max_tokens=" + maxTok);
+          const reqBody = {
+            model: fullPayload.model,
+            temperature: 0.4,
+            max_tokens: maxTok,
+            stream: true,
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt }
+            ]
+          };
+          if (supportsJsonResponseFormat(modelId)) {
+            reqBody.response_format = { type: "json_object" };
+          }
+          if (mid > 0) {
+            reqBody.llm_model_id = mid;
+          } else if (pid > 0) {
+            reqBody.provider_id = pid;
+          }
+
+          const lessonLabel = sliceLessons[0] && sliceLessons[0].topic ? sliceLessons[0].topic : "课次 " + (start + 1);
+          appendLog(
+            "[系统] 第 " +
+              (bi + 1) +
+              "/" +
+              batches.length +
+              " 课（第 " +
+              (start + 1) +
+              " 次课：" +
+              lessonLabel +
+              (includeGlobalThisBatch ? "，含整体教学设计" : "，仅本课学时详细教案") +
+              "）"
+          );
+
+          const batchProgBase = 5 + (bi / batches.length) * 82;
+          setProgress(Math.floor(batchProgBase));
+
+          let content = await streamOpenAiChat(apiUrl, apiKey, reqBody, aiAbortController.signal, (chunkCount) => {
+            setProgress(Math.min(97, Math.floor(batchProgBase + Math.min(18, chunkCount / 4))));
+          });
+          if (!content || content.indexOf("{") < 0) {
+            appendLog("[系统] 流式未得到有效 JSON，尝试非流式重试…");
+            content = await fetchOpenAiChatOnce(apiUrl, apiKey, reqBody, aiAbortController.signal);
+          }
+          refreshLessonQuota();
+
+          appendLog("[系统] 解析 JSON（第 " + (bi + 1) + " 课）");
+          const rawParsed = parseAIJson(content);
+          const aiData = coerceAiRoot(rawParsed);
+          if (!aiData.lessons || aiData.lessons.length === 0) {
+            throw new Error("第 " + (bi + 1) + " 课未解析到 lessons");
+          }
+          if (aiData.lessons.length < sliceLessons.length) {
+            appendLog(
+              "[警告] 第 " +
+                (bi + 1) +
+                " 课模型只返回 " +
+                aiData.lessons.length +
+                " 条 lessons（本请求 1 课），回填可能不完整。"
+            );
+          }
+
+          applyAiDataToDoc(
+            aiData,
+            includeGlobalThisBatch,
+            sliceLessons
+              .map((l) => Number(l && l.lessonNo))
+              .filter((n) => Number.isFinite(n) && n > 0)
+          );
+        }
+
+        if (!stoppedEarly) {
+          setProgress(100);
+          appendLog("[系统] 生成回填完成");
+          runConfettiCelebrate();
+          notifyParent({ running: false, done: true, progress: 100, message: "生成完成，可导出 docx" });
+        }
+        if (statusBox) {
+          statusBox.textContent = "";
+        }
+      } catch (error) {
+        if (error && (error.name === "AbortError" || /aborted/i.test(String(error.message || "")))) {
+          appendLog("[系统] 已中断");
+          notifyParent({ running: false, done: false, progress: 0, message: "已中断生成" });
+          if (statusBox) {
+            statusBox.textContent = "";
+          }
+          return;
+        }
+        setProgress(0);
+        appendLog("[错误] " + (error && error.message ? error.message : String(error)));
+        notifyParent({
+          running: false,
+          done: false,
+          progress: 0,
+          message: error && error.message ? error.message : "生成失败",
+        });
+        console.error(error);
+        if (statusBox) {
+          statusBox.textContent = "";
+        }
+      } finally {
+        streamReader = null;
+        aiAbortController = null;
+        lpAiRunning = false;
+        btnRunAI.disabled = false;
+        if (btnAbortAI) {
+          btnAbortAI.style.display = "none";
+        }
+        saveLessonState();
+      }
+    });
+
+    if (btnAbortAI) {
+      btnAbortAI.addEventListener("click", () => {
+        if (streamReader) {
+          try {
+            streamReader.cancel();
+          } catch (e) {
+            void 0;
+          }
+          streamReader = null;
+        }
+        if (aiAbortController) {
+          aiAbortController.abort();
+        }
+        appendLog("[系统] 已请求中断");
+        if (statusBox) {
+          statusBox.textContent = "";
+        }
+      });
+    }
+
+    document.addEventListener(
+      "click",
+      (ev) => {
+        const el = ev.target;
+        if (!(el instanceof Element)) {
+          return;
+        }
+        const btn = el.closest("button");
+        if (!btn || btn.disabled) {
+          return;
+        }
+        btn.classList.remove("motion-btn-press");
+        void btn.offsetWidth;
+        btn.classList.add("motion-btn-press");
+      },
+      true
+    );
+
+    async function refreshLessonQuota() {
+      const host = document.getElementById("lesson-plan-quota");
+      const url = cfg.quotaApiUrl;
+      if (!host || !url) return;
+      try {
+        const r = await fetch(url, { credentials: "same-origin" });
+        const j = await r.json();
+        const chat = j && j.chat ? j.chat : null;
+        if (!chat) {
+          host.textContent = "";
+          return;
+        }
+        if (chat.remaining == null) {
+          host.textContent = "对话额度：不限";
+        } else {
+          host.textContent = "对话额度：剩余 " + chat.remaining + " / " + chat.limit;
+        }
+      } catch (e) {
+        host.textContent = "";
+      }
+    }
+
+    loadModelsFromServer();
+    refreshLessonQuota();
+    restoreLessonState();
+    setStep(lpCurrentStep || 1, true);
+    renderLessonList();
+
+    if (generatedHtml && window.parent && window.parent !== window) {
+      notifyParent({ running: false, done: true, progress: 100, message: "生成完成，可导出 docx" });
+    }
+
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ source: "campus-lesson-plan", type: "ready" }, window.location.origin);
+      }
+    } catch (e) {}
+
+    document.querySelector(".container")?.addEventListener(
+      "input",
+      function () {
+        saveLessonState();
+      },
+      true
+    );
+  </script>
+</body>
+</html>

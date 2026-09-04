@@ -1,0 +1,11 @@
+# Apache：禁止直接访问 lib / database
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^lib/ - [F,L]
+  RewriteRule ^database/ - [F,L]
+</IfModule>
+
+# PHP 7.4+
+<IfModule mod_php.c>
+  php_flag display_errors Off
+</IfModule>

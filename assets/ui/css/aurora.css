@@ -1,0 +1,165 @@
+/* Aurora — chat background (solid fill, no gradient animation) */
+
+.aurora-container {
+  width: 100%;
+  height: 100%;
+}
+
+.chat-aurora-bg {
+  display: none !important;
+}
+
+/* 聊天页：纯色背景 */
+[data-theme="dark"] body.has-chat-aurora {
+  background: #000000;
+  color: #ececec;
+}
+
+[data-theme="dark"] body.has-chat-aurora .app {
+  background: #000000;
+}
+
+[data-theme="dark"] body.has-chat-aurora .app-sidebar {
+  background: #000000;
+  border-right-color: rgba(255, 255, 255, 0.08);
+}
+
+body.has-chat-aurora .app-main {
+  position: relative;
+  background: var(--bg-canvas);
+}
+
+body.has-chat-aurora .app-main > .app-topbar,
+body.has-chat-aurora .app-main > .chat-welcome,
+body.has-chat-aurora .app-main > .chat-stream {
+  position: relative;
+  z-index: 1;
+}
+
+body.has-chat-aurora .app-main > .composer {
+  position: relative;
+  z-index: 8;
+  pointer-events: auto;
+}
+
+[data-theme="dark"] body.has-chat-aurora .app-topbar {
+  background: #000000;
+}
+
+[data-theme="dark"] body.has-chat-aurora .chat-welcome__title {
+  text-shadow: none;
+}
+
+[data-theme="dark"] body.has-chat-aurora .card-spotlight--composer {
+  background-color: color-mix(in srgb, rgba(14, 12, 22, 0.88) 92%, transparent);
+}
+
+[data-theme="dark"] body.has-chat-aurora .composer__textarea,
+[data-theme="dark"] body.has-chat-aurora .chat-stream .msg__content,
+[data-theme="dark"] body.has-chat-aurora .chat-stream .msg-content {
+  color: #ececec;
+}
+
+[data-theme="dark"] body.has-chat-aurora .composer__textarea::placeholder {
+  color: rgba(236, 236, 236, 0.45);
+}
+
+[data-theme="dark"] body.has-chat-aurora .quota-badge {
+  color: #b4b4b4;
+}
+
+[data-theme="dark"] body.has-chat-aurora .composer {
+  background: transparent;
+}
+
+[data-theme="dark"] body.has-chat-aurora .msg__name {
+  color: #ececec;
+}
+
+[data-theme="dark"] body.has-chat-aurora .msg__content code {
+  background: rgba(47, 47, 47, 0.85);
+  color: #ececec;
+}
+
+[data-theme="dark"] body.has-chat-aurora .msg__content pre {
+  background: rgba(24, 22, 32, 0.88);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #ececec;
+}
+
+[data-theme="dark"] body.has-chat-aurora .sidebar-item,
+[data-theme="dark"] body.has-chat-aurora .sidebar-brand .name,
+[data-theme="dark"] body.has-chat-aurora .sidebar-user__name {
+  color: #ececec;
+}
+
+[data-theme="dark"] body.has-chat-aurora .sidebar-section,
+[data-theme="dark"] body.has-chat-aurora .sidebar-user__plan,
+[data-theme="dark"] body.has-chat-aurora .conv-item {
+  color: #ececec;
+}
+
+/* ---------- 白天主题（聊天页） ---------- */
+[data-theme="light"] body.has-chat-aurora {
+  background: #ffffff;
+  color: var(--text-primary);
+}
+
+[data-theme="light"] body.has-chat-aurora .app {
+  background: #ffffff;
+}
+
+[data-theme="light"] body.has-chat-aurora .app-sidebar {
+  background: #ffffff;
+  border-right-color: var(--border-subtle);
+}
+
+[data-theme="light"] body.has-chat-aurora .app-topbar {
+  background: #ffffff;
+}
+
+[data-theme="light"] body.has-chat-aurora .app-main {
+  background: #ffffff;
+}
+
+[data-theme="light"] body.has-chat-aurora .card-spotlight--composer {
+  background-color: color-mix(in srgb, var(--bg-elevated) 94%, transparent);
+  border: 1px solid var(--border-subtle);
+}
+
+[data-theme="light"] body.has-chat-aurora .composer__textarea,
+[data-theme="light"] body.has-chat-aurora .chat-stream .msg__content,
+[data-theme="light"] body.has-chat-aurora .chat-stream .msg-content,
+[data-theme="light"] body.has-chat-aurora .msg__name,
+[data-theme="light"] body.has-chat-aurora .sidebar-item,
+[data-theme="light"] body.has-chat-aurora .sidebar-brand .name,
+[data-theme="light"] body.has-chat-aurora .sidebar-user__name,
+[data-theme="light"] body.has-chat-aurora .sidebar-section,
+[data-theme="light"] body.has-chat-aurora .sidebar-user__plan,
+[data-theme="light"] body.has-chat-aurora .conv-item {
+  color: var(--text-primary);
+}
+
+[data-theme="light"] body.has-chat-aurora .composer__textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+[data-theme="light"] body.has-chat-aurora .quota-badge {
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] body.has-chat-aurora .msg__content code {
+  background: color-mix(in srgb, var(--bg-hover) 88%, #6366f1 12%);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] body.has-chat-aurora .msg__content pre {
+  background: var(--bg-elevated-2);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] body.has-chat-aurora .chat-welcome__title {
+  text-shadow: none;
+  color: var(--text-primary);
+}
