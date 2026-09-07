@@ -9,5 +9,5 @@ api_json_headers();
 
 require_login();
 
-$models = models_list_enabled();
+$models = array_map('model_public_row', models_list_enabled());
 echo json_encode(['models' => $models], JSON_UNESCAPED_UNICODE);

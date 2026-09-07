@@ -3,6 +3,10 @@
   RewriteEngine On
   RewriteRule ^lib/ - [F,L]
   RewriteRule ^database/ - [F,L]
+
+  # OpenAI 兼容网关（无 .php 后缀）
+  RewriteRule ^api/v1/chat/completions$ api/v1/chat/completions.php [L,QSA]
+  RewriteRule ^api/v1/models$ api/v1/models.php [L,QSA]
 </IfModule>
 
 # PHP 7.4+

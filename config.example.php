@@ -80,6 +80,9 @@ define('IMAGE_PROMPT_OPTIMIZE_ENABLED', true);
 define('IMAGE_PROMPT_OPTIMIZE_MODEL', 'gemma4:31b');
 define('IMAGE_PROMPT_OPTIMIZE_TIMEOUT', 60);
 
+// ─── 用户 API Key 网关（/api/v1/chat/completions，需登录后在个人中心生成）────
+define('USER_API_KEY_ENABLED', true);
+
 // ─── 管理后台（独立账号；也可将用户加入「管理员」用户组后 SSO 直进后台）────
 define('ADMIN_USERNAME', 'admin');
 define('ADMIN_PASSWORD', 'change_me_strong_password');

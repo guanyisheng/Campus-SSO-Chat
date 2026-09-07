@@ -167,3 +167,41 @@
   background: var(--bg-hover);
   color: var(--danger);
 }
+
+.profile-api-key__hint {
+  margin: 0 0 0.5rem;
+  line-height: 1.5;
+}
+
+.profile-api-key__endpoint,
+.profile-api-key__status {
+  margin: 0 0 0.35rem;
+  word-break: break-all;
+}
+
+.profile-api-key__new {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  flex-wrap: wrap;
+}
+
+.profile-api-key__code {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.75rem;
+  word-break: break-all;
+}
+
+.profile-api-key__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
