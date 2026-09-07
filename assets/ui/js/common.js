@@ -343,4 +343,17 @@
     container.hidden = false;
     container.innerHTML = '<div class="quota-bars">' + html + '</div>';
   };
+
+  window.getCsrfToken = function () {
+    if (window.__CSRF__) return window.__CSRF__;
+    var meta = document.querySelector('meta[name="csrf-token"]');
+    return meta && meta.content ? meta.content : '';
+  };
+
+  window.csrfHeaders = function (extra) {
+    var headers = extra || {};
+    var token = window.getCsrfToken();
+    if (token) headers['X-CSRF-Token'] = token;
+    return headers;
+  };
 })();

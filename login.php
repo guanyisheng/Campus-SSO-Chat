@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/lib/session.php';
 require_once __DIR__ . '/lib/settings.php';
+require_once __DIR__ . '/lib/csrf.php';
 
 if (current_user()) {
     header('Location: ' . rtrim(SITE_URL, '/') . '/chat.php');
@@ -15,6 +16,7 @@ $oidcOn = setting_bool('enable_oidc_auth', true);
 $localOn = setting_bool('enable_local_auth', ENABLE_LOCAL_AUTH);
 $error = $_GET['error'] ?? null;
 $page_title = '登录';
+$ui_csrf = true;
 require __DIR__ . '/includes/ui_head.php';
 ?>
 
@@ -30,6 +32,7 @@ require __DIR__ . '/includes/ui_head.php';
 
     <?php if ($localOn): ?>
     <form class="auth-form" method="post" action="<?= htmlspecialchars($base . '/auth/local_login.php', ENT_QUOTES) ?>" style="margin-top:1rem;">
+      <?= csrf_field() ?>
       <div class="c-field">
         <label class="c-label">账号</label>
         <input class="c-input c-input--lg" type="text" name="campus_uid" required

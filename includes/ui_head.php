@@ -65,5 +65,16 @@ $ui_extra_css = $ui_extra_css ?? [];
   <?php foreach ($ui_extra_css as $css): ?>
   <link rel="stylesheet" href="<?= htmlspecialchars($ui_asset($css), ENT_QUOTES) ?>">
   <?php endforeach; ?>
+  <?php
+  $ui_use_csrf = !empty($ui_csrf) || (($ui_css ?? '') === 'admin');
+  require_once dirname(__DIR__) . '/lib/security.php';
+  if ($ui_use_csrf) {
+      require_once dirname(__DIR__) . '/lib/csrf.php';
+      security_send_html_headers();
+      echo csrf_meta_tag(), "\n";
+  } elseif (empty($ui_skip_security_headers)) {
+      security_send_html_headers();
+  }
+  ?>
 </head>
 <body<?= $ui_body_classes !== '' ? ' class="' . htmlspecialchars($ui_body_classes, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>

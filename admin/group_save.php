@@ -7,6 +7,7 @@ require_once dirname(__DIR__) . '/lib/settings.php';
 require_once dirname(__DIR__) . '/lib/user_groups.php';
 
 require_admin();
+require_admin_csrf();
 
 $base = site_base_url() . '/admin/groups.php';
 $action = (string) ($_POST['action'] ?? '');

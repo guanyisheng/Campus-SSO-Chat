@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/lib/session.php';
 require_once __DIR__ . '/lib/settings.php';
+require_once __DIR__ . '/lib/csrf.php';
 
 if (current_user()) {
     header('Location: ' . rtrim(SITE_URL, '/') . '/chat.php');
@@ -18,6 +19,7 @@ if (!setting_bool('enable_local_auth', ENABLE_LOCAL_AUTH)) {
 $base = rtrim(SITE_URL, '/');
 $error = $_GET['error'] ?? null;
 $page_title = '注册';
+$ui_csrf = true;
 require __DIR__ . '/includes/ui_head.php';
 ?>
 
@@ -32,6 +34,7 @@ require __DIR__ . '/includes/ui_head.php';
     <?php endif; ?>
 
     <form class="auth-form" method="post" action="<?= htmlspecialchars($base . '/auth/local_register.php', ENT_QUOTES) ?>" style="margin-top:1rem;">
+      <?= csrf_field() ?>
       <div class="c-field">
         <label class="c-label">账号</label>
         <input class="c-input c-input--lg" type="text" name="campus_uid" required

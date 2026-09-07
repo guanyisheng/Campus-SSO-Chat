@@ -6,6 +6,7 @@ require_once dirname(__DIR__) . '/lib/admin.php';
 require_once dirname(__DIR__) . '/lib/models.php';
 
 require_admin();
+require_admin_csrf();
 
 $base = site_base_url() . '/admin/models.php';
 

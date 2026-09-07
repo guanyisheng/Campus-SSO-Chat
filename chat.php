@@ -48,6 +48,9 @@ if ($initialAgent !== '') {
     $initialConversationId = 0;
 }
 $page_title = '对话';
+$ui_csrf = true;
+require_once __DIR__ . '/lib/csrf.php';
+$ui_chat_csrf = csrf_token();
 $ui_chat_aurora = true;
 $ui_viewport_lock = true;
 $welcomeRotatingTexts = [
@@ -585,6 +588,21 @@ require __DIR__ . '/includes/ui_head.php';
       <h3 class="profile-modal__section-title">今日额度</h3>
       <div class="profile-modal__quota" id="profile-quota-host"></div>
     </div>
+    <div class="profile-modal__section" id="profile-api-key-section">
+      <h3 class="profile-modal__section-title">API Key</h3>
+      <p class="profile-modal__meta profile-api-key__hint">登录后生成 Key，用 OpenAI 兼容客户端调用本系统（不直接连 Ollama）。</p>
+      <p class="profile-modal__meta profile-api-key__endpoint" id="profile-api-base"></p>
+      <p class="profile-modal__meta profile-api-key__endpoint" id="profile-api-endpoint"></p>
+      <p class="profile-modal__meta profile-api-key__status" id="profile-api-status"></p>
+      <div class="profile-api-key__new" id="profile-api-key-new" hidden>
+        <code class="profile-api-key__code" id="profile-api-key-value"></code>
+        <button type="button" class="c-btn c-btn--ghost c-btn--sm" id="btn-copy-api-key">复制</button>
+      </div>
+      <div class="profile-api-key__actions">
+        <button type="button" class="c-btn c-btn--secondary c-btn--sm" id="btn-generate-api-key">生成 Key</button>
+        <button type="button" class="c-btn c-btn--ghost c-btn--sm" id="btn-revoke-api-key" hidden>撤销 Key</button>
+      </div>
+    </div>
     <div class="profile-modal__actions">
       <?php if ($canAccessAdmin): ?>
       <a href="<?= htmlspecialchars($base . '/admin/', ENT_QUOTES) ?>" class="profile-modal__link" target="_blank" rel="noopener">
@@ -618,6 +636,9 @@ require __DIR__ . '/includes/ui_head.php';
     mediaQueueUrl: <?= json_encode($base . '/api/media_queue.php', JSON_UNESCAPED_UNICODE) ?>,
     videoUrl: <?= json_encode($base . '/api/video.php', JSON_UNESCAPED_UNICODE) ?>,
     quotaUrl: <?= json_encode($base . '/api/quota.php', JSON_UNESCAPED_UNICODE) ?>,
+    userApiKeyUrl: <?= json_encode($base . '/api/user_api_key.php', JSON_UNESCAPED_UNICODE) ?>,
+    csrfToken: <?= json_encode($ui_chat_csrf, JSON_UNESCAPED_UNICODE) ?>,
+    openAiGatewayUrl: <?= json_encode($base . '/api/v1/chat/completions', JSON_UNESCAPED_UNICODE) ?>,
     userName: <?= json_encode($displayName, JSON_UNESCAPED_UNICODE) ?>,
     campusUid: <?= json_encode((string) ($user['campus_uid'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,
     groupName: <?= json_encode((string) ($quotaInfo['group_name'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,

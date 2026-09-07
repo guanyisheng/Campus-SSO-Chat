@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/config.php';
 require_once dirname(__DIR__) . '/lib/session.php';
+require_once dirname(__DIR__) . '/lib/csrf.php';
 require_once dirname(__DIR__) . '/lib/user.php';
 
 $base = rtrim(SITE_URL, '/');
@@ -11,6 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ' . $base . '/register.php');
     exit;
 }
+
+csrf_require();
 
 try {
     $uid = $_POST['campus_uid'] ?? '';

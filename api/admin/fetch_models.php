@@ -4,6 +4,7 @@ declare(strict_types=1);
 $appRoot = dirname(__DIR__, 2);
 require_once $appRoot . '/config.php';
 require_once $appRoot . '/lib/admin.php';
+require_once $appRoot . '/lib/csrf.php';
 require_once $appRoot . '/lib/models.php';
 require_once $appRoot . '/lib/model_remote.php';
 
@@ -20,6 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['error' => 'Method not allowed'], JSON_UNESCAPED_UNICODE);
     exit;
 }
+
+csrf_require();
 
 $input = json_decode(file_get_contents('php://input') ?: '{}', true);
 if (!is_array($input)) {

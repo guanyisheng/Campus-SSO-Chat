@@ -5,6 +5,9 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/lib/security.php';
+
+security_require_install_page();
 
 header('Content-Type: text/html; charset=utf-8');
 

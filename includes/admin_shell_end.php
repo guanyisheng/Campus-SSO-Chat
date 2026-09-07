@@ -33,4 +33,19 @@
   });
 })();
 if (window.renderIcons) window.renderIcons(document.getElementById('admin-app'));
+
+(function () {
+  var meta = document.querySelector('meta[name="csrf-token"]');
+  var token = meta && meta.content ? meta.content : '';
+  if (!token) return;
+  window.__CSRF__ = token;
+  document.querySelectorAll('form[method="post" i]').forEach(function (form) {
+    if (form.querySelector('input[name="_csrf"]')) return;
+    var input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = '_csrf';
+    input.value = token;
+    form.prepend(input);
+  });
+})();
 </script>

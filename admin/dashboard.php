@@ -4,12 +4,26 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/config.php';
 require_once dirname(__DIR__) . '/lib/admin.php';
 require_once dirname(__DIR__) . '/lib/settings.php';
+require_once dirname(__DIR__) . '/lib/security.php';
 
 require_admin();
 
 $base = site_base_url();
 $s = settings_all();
 $saved = isset($_GET['saved']);
+$securityWarnings = [];
+if (!security_session_secret_ok()) {
+    $securityWarnings[] = 'SESSION_SECRET 仍为默认值或过短，请在 config.php 中设置为至少 32 位随机字符串。';
+}
+if (security_install_enabled()) {
+    $securityWarnings[] = 'INSTALL_CHECK_ENABLED 为 true，install.php 可被公网访问。验收后请改回 false。';
+}
+if (is_file(dirname(__DIR__) . '/install.php')) {
+    $securityWarnings[] = 'install.php 仍存在于站点根目录，建议删除或确保 INSTALL_CHECK_ENABLED=false。';
+}
+if (code_run_enabled()) {
+    $securityWarnings[] = '服务端代码运行（CODE_RUN_ENABLED）已开启，请确认仅可信用户使用编程模式。';
+}
 
 $page_title = '系统设置';
 $ui_css = 'admin';
@@ -21,6 +35,10 @@ require dirname(__DIR__) . '/includes/admin_shell.php';
   <?php if ($saved): ?>
     <div class="alert alert-success">已保存</div>
   <?php endif; ?>
+
+  <?php foreach ($securityWarnings as $warn): ?>
+    <div class="alert alert-error" style="margin-bottom:0.75rem;"><?= htmlspecialchars($warn, ENT_QUOTES, 'UTF-8') ?></div>
+  <?php endforeach; ?>
 
   <form method="post" action="<?= htmlspecialchars($base . '/admin/save.php', ENT_QUOTES) ?>" class="form-section">
     <section style="margin-bottom:1.5rem;">

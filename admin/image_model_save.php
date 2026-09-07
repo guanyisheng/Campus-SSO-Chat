@@ -7,6 +7,7 @@ require_once dirname(__DIR__) . '/lib/image_models.php';
 require_once dirname(__DIR__) . '/lib/comfyui.php';
 
 require_admin();
+require_admin_csrf();
 image_models_ensure_ready();
 
 $base = site_base_url();

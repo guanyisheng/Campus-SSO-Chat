@@ -51,6 +51,20 @@ function model_normalize_row(array $row): array
     ];
 }
 
+/** 前台/API 公开字段（不含 base_url、api_key） */
+function model_public_row(array $row): array
+{
+    $normalized = model_normalize_row($row);
+
+    return [
+        'id'         => $normalized['id'],
+        'name'       => $normalized['display_name'],
+        'model_name' => $normalized['model_name'],
+        'model_type' => $normalized['model_type'],
+        'sort_order' => $normalized['sort_order'],
+    ];
+}
+
 function models_list_enabled_by_type(string $type = 'chat'): array
 {
     models_ensure_default();
