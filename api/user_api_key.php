@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/config.php';
 require_once dirname(__DIR__) . '/lib/session.php';
+require_once dirname(__DIR__) . '/lib/csrf.php';
 require_once dirname(__DIR__) . '/lib/models.php';
 require_once dirname(__DIR__) . '/lib/user_api_keys.php';
 
@@ -30,6 +31,8 @@ try {
         echo json_encode(['error' => 'Method not allowed'], JSON_UNESCAPED_UNICODE);
         exit;
     }
+
+    csrf_require();
 
     $input = json_decode(file_get_contents('php://input') ?: '{}', true);
     if (!is_array($input)) {

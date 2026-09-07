@@ -170,7 +170,10 @@ require dirname(__DIR__) . '/includes/admin_shell.php';
     fetch(fetchUrl, {
       method: 'POST',
       credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': window.__CSRF__ || ''
+      },
       body: JSON.stringify({
         base_url: baseUrl,
         api_key: apiKey,

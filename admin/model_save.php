@@ -8,6 +8,7 @@ require_once dirname(__DIR__) . '/lib/model_remote.php';
 
 models_fix_schema();
 require_admin();
+require_admin_csrf();
 
 $base = site_base_url() . '/admin/models.php';
 $returnType = model_normalize_type((string) ($_POST['return_type'] ?? $_GET['type'] ?? 'chat'));

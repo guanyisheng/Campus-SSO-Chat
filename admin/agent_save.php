@@ -9,6 +9,7 @@ require_once dirname(__DIR__) . '/lib/user.php';
 require_once dirname(__DIR__) . '/lib/user_groups.php';
 
 require_admin();
+require_admin_csrf();
 agents_fix_schema();
 
 $base = site_base_url();

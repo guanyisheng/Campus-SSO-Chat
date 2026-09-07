@@ -7,6 +7,7 @@ require_once dirname(__DIR__) . '/lib/db.php';
 require_once dirname(__DIR__) . '/lib/user_groups.php';
 
 require_admin();
+require_admin_csrf();
 
 $userId = (int) ($_POST['user_id'] ?? 0);
 $groupId = (int) ($_POST['group_id'] ?? 0);

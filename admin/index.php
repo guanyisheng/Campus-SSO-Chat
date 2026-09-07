@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/config.php';
 require_once dirname(__DIR__) . '/lib/admin.php';
+require_once dirname(__DIR__) . '/lib/csrf.php';
 
 $base = rtrim(SITE_URL, '/');
 
@@ -14,6 +15,7 @@ if (is_admin()) {
 $error = $_GET['error'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_require();
     $user = trim($_POST['username'] ?? '');
     $pass = $_POST['password'] ?? '';
     if (admin_login($user, $pass)) {
@@ -39,6 +41,7 @@ require dirname(__DIR__) . '/includes/ui_head.php';
     <?php endif; ?>
 
     <form method="post" class="auth-form admin-page" style="margin-top:1rem;">
+      <?= csrf_field() ?>
       <div class="c-field">
         <label class="c-label">账号</label>
         <input class="c-input c-input--lg" type="text" name="username" required autocomplete="username">

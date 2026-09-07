@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/config.php';
 require_once dirname(__DIR__) . '/lib/session.php';
+require_once dirname(__DIR__) . '/lib/security.php';
 require_once dirname(__DIR__) . '/lib/code_runner.php';
 
 api_json_headers();
@@ -10,6 +11,12 @@ api_json_headers();
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed']);
+    exit;
+}
+
+if (!code_run_enabled()) {
+    http_response_code(403);
+    echo json_encode(['error' => '服务端代码运行已关闭'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

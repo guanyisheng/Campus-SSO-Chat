@@ -6,6 +6,7 @@ require_once dirname(__DIR__) . '/lib/admin.php';
 require_once dirname(__DIR__) . '/lib/settings.php';
 
 require_admin();
+require_admin_csrf();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ' . site_base_url() . '/admin/dashboard.php');

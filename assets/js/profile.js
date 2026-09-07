@@ -58,10 +58,12 @@
   function postApiKeyAction(action) {
     var url = cfg().userApiKeyUrl;
     if (!url) return Promise.reject(new Error('未配置接口'));
+    var headers = { 'Content-Type': 'application/json' };
+    if (cfg().csrfToken) headers['X-CSRF-Token'] = cfg().csrfToken;
     return fetch(url, {
       method: 'POST',
       credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json' },
+      headers: headers,
       body: JSON.stringify({ action: action }),
     }).then(function (res) {
       return res.json().then(function (data) {

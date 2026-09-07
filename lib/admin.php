@@ -44,3 +44,12 @@ function require_admin(): void
     header('Location: ' . site_base_url() . '/admin/index.php');
     exit;
 }
+
+function require_admin_csrf(): void
+{
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+        return;
+    }
+    require_once __DIR__ . '/csrf.php';
+    csrf_require();
+}

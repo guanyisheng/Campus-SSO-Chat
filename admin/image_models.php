@@ -149,7 +149,10 @@ require dirname(__DIR__) . '/includes/admin_shell.php';
   function postJson(url, body) {
     return fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': window.__CSRF__ || ''
+      },
       credentials: 'same-origin',
       body: JSON.stringify(body || {})
     }).then(function (res) {

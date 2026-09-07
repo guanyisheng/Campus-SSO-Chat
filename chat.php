@@ -48,6 +48,9 @@ if ($initialAgent !== '') {
     $initialConversationId = 0;
 }
 $page_title = '对话';
+$ui_csrf = true;
+require_once __DIR__ . '/lib/csrf.php';
+$ui_chat_csrf = csrf_token();
 $ui_chat_aurora = true;
 $ui_viewport_lock = true;
 $welcomeRotatingTexts = [
@@ -634,6 +637,7 @@ require __DIR__ . '/includes/ui_head.php';
     videoUrl: <?= json_encode($base . '/api/video.php', JSON_UNESCAPED_UNICODE) ?>,
     quotaUrl: <?= json_encode($base . '/api/quota.php', JSON_UNESCAPED_UNICODE) ?>,
     userApiKeyUrl: <?= json_encode($base . '/api/user_api_key.php', JSON_UNESCAPED_UNICODE) ?>,
+    csrfToken: <?= json_encode($ui_chat_csrf, JSON_UNESCAPED_UNICODE) ?>,
     openAiGatewayUrl: <?= json_encode($base . '/api/v1/chat/completions', JSON_UNESCAPED_UNICODE) ?>,
     userName: <?= json_encode($displayName, JSON_UNESCAPED_UNICODE) ?>,
     campusUid: <?= json_encode((string) ($user['campus_uid'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,

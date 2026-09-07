@@ -22,6 +22,12 @@ define('SITE_URL', 'https://chat.example.edu.cn');
 
 define('SESSION_SECRET', 'CHANGE_ME_TO_RANDOM_64_CHARS');
 
+// 首次部署环境检测：仅临时设为 true，验收后改回 false 并删除 install.php
+define('INSTALL_CHECK_ENABLED', false);
+
+// 编程模式服务端代码运行（Python/Java 等）；生产若不需要可设为 false
+define('CODE_RUN_ENABLED', true);
+
 // ─── OIDC 统一认证（可选，不用 SSO 时可关闭 ENABLE_LOCAL_AUTH 仅用本地登录）──
 // 支持 .well-known 自动发现：填写 OIDC_PROVIDER_URL 即可自动获取端点。
 // 须在认证平台登记回调：{SITE_URL}/auth/callback.php
